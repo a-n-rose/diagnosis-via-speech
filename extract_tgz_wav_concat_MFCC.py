@@ -1,18 +1,14 @@
 '''
-file to extract .wav file from all .tgz in a directory(with a folder in it called 'wav'!!!), one at a time, to the Root/tmp/audio directory.
-program will concatenate all .wav from one speaker
-then will extract MFCC from that .wav
+Script to extract .wav file from all .tgz in a directory(with a folder in it called 'wav'!!!), one at a time, 
+to the Root/tmp/audio directory.
+Program will concatenate all .wav from one speaker (if there are multiple .wav files for one speaker)
+Then will extract MFCC from that .wav
 
 the MFCCs will be saved to a master database
 
 the extracted files will then be deleted
-
-Note: several notifications are availale via print() but are mostly commented out
-The ones that aren't commented out are to show that the algorithm has successfully completed extracting (.wav and MFCC), saving, and finally deleting the file(s).
 '''
 
-
- 
 import os, sys, tarfile
 import numpy as np
 import pandas as pd
@@ -49,31 +45,16 @@ def get_save_mfcc(tgz_file,label):
             for i in columns:
                 column_str.append(str(i))
             sp_df1 = pd.DataFrame([],columns = ["speaker"]+column_str+["label",])
-            #print("Created new master dataframe")
-        #print("Extracting tgz file: ",tgz_file)
+            print("Created new master dataframe")
         extract(tgz_file, extract_path = '/tmp/audio')
-        #print("Finished extracting")
-        #print("Saving speaker's filename")
         filename = os.path.splitext(tgz_file)[0]
-        #print("Speaker's filename saved")
-        #print(filename)
-        #concatenate .wav files to one (one .wav file per speaker)
-        #print("Concatenating speaker's .wav files")
         wav_list = []
         for wav in glob.glob('/tmp/audio/'+filename+'/wav/*.wav'):
             wav_list.append(AudioSegment.from_wav(wav))
         if len(wav_list)>=1:
-        #    print("Speaker's .wav files have been prepared for concatenation")
-            #print(wav_list)
             comb_wav = sum(wav_list)
-            #print(comb_wav)
-         #   print(".wav files have been Concatenated")
             comb_wav.export("/tmp/audio/"+filename+"/comb_wav.wav", format="wav")
-           # print("Speaker's .wav file has been exported")
-        #print("Extracting MFCC / features")
         feature = parser("/tmp/audio/"+filename+"/comb_wav.wav")
-        #print("MFCCs have been extracted")
-        #print("Creating dataframe for the speaker's MFCC data")
         columns = list((range(0,40)))
         column_str = []
         for i in columns:
@@ -83,26 +64,14 @@ def get_save_mfcc(tgz_file,label):
         curr_db["label"] = label
         #to ensure no additional columns are included (like "unnamed..."):
         sp_df = sp_df1[["speaker"]+column_str+["label"]]
-        #print("Created new dataframe with extracted MFCC data")
-        #print("Dimensions of current dataframe are: ", curr_db.shape)
-        #print("Dimensions of master dataframe are: ", sp_df.shape)
-        #print("Appending current speaker's MFCC data to master dataframe")
         sp_df_new = sp_df.append(curr_db, ignore_index=True)
-        #print("Successfully appended new data")
-        #print("Saving appended dataframe to csv")
         sp_df_new.to_csv('/tmp/audio/sp_df.csv')
-        print("Successfully updated master dataframe!")
         print("Successfully updated master dataframe with ", filename)
         print("New dimensions of the master dataframe: ", sp_df_new.shape)        
-        #print("Removing extracted directory")
         shutil.rmtree('/tmp/audio/'+filename)
         print("Extracted file "+filename+" removed!")
     except Exception as e:
         print(e)
-
-
-
-        
     
 #save all .tgz files to a list and turn into dataframe
 #can apply my function to them much faster and effectively than with "for loop":
@@ -115,12 +84,3 @@ fl_df = pd.DataFrame(files_list)
 
 label = input("What language category is this speech? ")
 fl_df[0].apply(lambda x: get_save_mfcc(x,label))
-
-
-
-    
-    
-    
-    
-
-    
