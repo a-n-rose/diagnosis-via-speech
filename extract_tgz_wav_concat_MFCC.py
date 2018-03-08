@@ -1,6 +1,9 @@
 '''
 Script to extract .wav file from all .tgz in a directory(with a folder in it called 'wav'!!!), one at a time, 
 to the Root/tmp/audio directory.
+
+Input required: which language the speech data is.
+
 Program will concatenate all .wav from one speaker (if there are multiple .wav files for one speaker)
 Then will extract MFCC from that .wav
 
