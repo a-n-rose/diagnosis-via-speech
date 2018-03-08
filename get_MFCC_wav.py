@@ -119,12 +119,3 @@ fl_df = pd.DataFrame(files_list)
 label = input("What language category is this speech? ")
 #fl_df[0].apply(lambda x: print("hello ",x,"!"))
 fl_df[0].apply(lambda x: get_save_mfcc(x,label))
-
-
-
-    
-    
-    
-    
-
-    
