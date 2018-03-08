@@ -6,9 +6,11 @@
 ## Phase 1: general speech - experiment with neural networks
 * Experiment with how neural networks learn from speech data. Collect a lot of speech data and extract relevant features.
 
-Downloaded English and German speech from Voxforge (several other languages available as well): 
+The speech I could most easily access at the moment was English (surprise!) and a bit of German. I decided to train neural networks on English and German and see if it could learn which langauge was which with new input.
 
-1) write the following command(s) in (Linux) commandline (in the directory you want the speech data):  
+I downloaded English and German speech from Voxforge (several other languages are available there as well): 
+
+1) to batch download the English data, write the following command(s) in (Linux) commandline (in the directory you want the speech data):  
 
 wget -r -A.tgz http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original/48kHz_16bit/s
 
@@ -28,7 +30,7 @@ This has been structured so that if the zipfile is extracted, tons of memory wil
 
 1) run "engerm_prep_ml.py" in same directory as "sp_df.csv". This will prepare the data for deep-learning. The new dataframe will be saved as "engerm_mfcc_ml.csv". Note: this script expects only 2 languages in dataset, English as well as another language. 
 
-2) run "engerm_ann.py" in same directory as "engerm_mfcc_ml.csv". This will requires a pretty good machine to complete. It does not work on my puny little laptop. 
+2) run "engerm_ann.py" in same directory as "engerm_mfcc_ml.csv". This trains an artificial neural network (ANN) on the MFCC data and requires a pretty good machine to complete. It does not work on my puny little laptop. 
 
 * Develop simple, fun mobile applications based on the models
 
