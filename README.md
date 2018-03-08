@@ -28,7 +28,7 @@ This has been structured so that if the zipfile is extracted, tons of memory wil
 
 * Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc.
 
-1) run "engerm_prep_ml.py" in same directory as "sp_df.csv". This will prepare the data for deep-learning. The new dataframe will be saved as "engerm_mfcc_ml.csv". Note: this script expects only 2 languages in dataset, English as well as another language. 
+1) run "engerm_prep_ml.py" in same directory as "sp_df.csv" (the output file from the two 'get_MFCC_wav.py' and 'extract_tgz_wav_concat_MFCC.py' scripts). This will prepare the data for deep-learning. The new dataframe will be saved as "engerm_mfcc_ml.csv". Note: this script expects only 2 languages in dataset, English as well as another language. 
 
 2) run "engerm_ann.py" in same directory as "engerm_mfcc_ml.csv". This trains an artificial neural network (ANN) on the MFCC data and requires a pretty good machine to complete. It does not work on my puny little laptop. 
 
