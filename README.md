@@ -25,6 +25,11 @@ This has been structured so that if the zipfile is extracted, tons of memory wil
 4) run "get_MFCC_wav.py script" in directory with .wav files of German speech (in test and dev directories) to save MFCCs from this data to the database with the English MFCCs (but with the label of "German" of course). Note: you will be asked for which language category the speech is. Type in "German" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
 
 * Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc.
+
+1) run "engerm_prep_ml.py" in same directory as "sp_df.csv". This will prepare the data for deep-learning. The new dataframe will be saved as "engerm_mfcc_ml.csv". Note: this script expects only 2 languages in dataset, English as well as another language. 
+
+2) run "engerm_ann.py" in same directory as "engerm_mfcc_ml.csv". This will requires a pretty good machine to complete. It does not work on my puny little laptop. 
+
 * Develop simple, fun mobile applications based on the models
 
 ## Phase 2: clinical speech - maximize model performance!!!
