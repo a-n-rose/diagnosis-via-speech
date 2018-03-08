@@ -17,7 +17,7 @@ def parser(file):
     feature = mfccs
     return feature
 
-def get_save_mfcc(tgz_file,label):
+def get_save_mfcc(wav_file,label):
     try:
         try:
             sp_df1 = pd.read_csv("/tmp/audio/sp_df.csv")
@@ -29,7 +29,7 @@ def get_save_mfcc(tgz_file,label):
                 column_str.append(str(i))
             sp_df1 = pd.DataFrame([],columns = ["speaker"]+column_str+["label",])
             print("Created new master dataframe")
-        filename = os.path.splitext(tgz_file)[0]
+        filename = os.path.splitext(wav_file)[0]
         feature = parser(filename+".wav")
         columns = list((range(0,40)))
         column_str = []
