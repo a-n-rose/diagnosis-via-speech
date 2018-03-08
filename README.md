@@ -5,7 +5,16 @@
 
 ## Phase 1: general speech - experiment with neural networks
 * Experiment with how neural networks learn from speech data. Collect a lot of speech data and extract relevant features.
-* Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc. 
+** Downloaded English speech from Voxforge: 
+*** write the following commands in (Linux) commandline (in the directory you want the speech data):  wget -r -A.tgz http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original/48kHz_16bit/s
+**** there are several folders with speech data: the above folder is "48kHz_16bit". Other folders include "16kHz_16bit/","32kHz_16bit/","44.1kHz_16bit/","8kHz_16bit/". 
+*** this will download all of the individual speaker files in .tgz format. 
+*** run "extract_tgz_wav_concat_MFCC.py" in same directory as the .tgz file(s). This will save a new .csv IN  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, and language/label (English). IF kept in this directory, the data from other languages, i.e. German (below) will be added.
+** Downloaded German speech from: http://www.voxforge.org/home/forums/other-languages/german/open-speech-data-corpus-for-german
+*** This has been structured so that if the zipfile is extracted, tons of memory will be used up. Unzip file somewhere with sufficient memory
+*** run get_MFCC_wav.py script in directory with .wav files of German speech (in test and dev directories) to save MFCCs from this data to the database with the English MFCCs
+* Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc.
+** run the .py script (which will ask for language category, i.e. English) which will extract the .wav files one by one to the Root/tmp directory, deleting the extracted files once the MFCCs have been calculated. The MFCCs of all the speakers will be saved into a .csv which will also be in the Root/tmp directory.
 * Develop simple, fun mobile applications based on the models
 
 ## Phase 2: clinical speech - maximize model performance!!!
