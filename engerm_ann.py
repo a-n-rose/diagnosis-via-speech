@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 
-sp_df = pd.read_csv("engerm_mfcc_ml.csv",index_col = "Unnamed: 0")
+sp_df = pd.read_csv("engerm_mfcc_ml.csv")
 X = np.array(sp_df.ix[:,:-1])
 y = np.array(sp_df.ix[:,-1])
 
@@ -57,19 +57,15 @@ model.add(Activation('sigmoid'))
 model.compile(loss = 'binary_crossentropy',metrics = ['accuracy'], optimizer = 'adam')
 
 batch_size = 10
-epochs = 50
+epochs = 100
 model.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 
 y_pred = model.predict(X_test)
 y_pred = (y_pred > 0.5)
-#evaluate model
-scores = model.evaluate(X, y, verbose=0)
-#print accuracy
-print("%s: %.2f%%" % (model.metrics_names[1],scores[1]*100))
 
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test,y_pred)
-print("ANN applied with batch size of ",batch_size," and ", epochs, " epochs")
+print("ANN applied with batch size of "+batch_size+" and "+ epochs+ " epochs")
 print(cm)
 
 
