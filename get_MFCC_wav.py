@@ -1,5 +1,5 @@
 '''
-script to get the MFCCs from all .wav files in same directory. The MFCCs will be saved to a master database.
+script to get the MFCCs from all .wav files in same directory. The MFCCs will be saved to a master database. Input required: which language the speech data is.
 '''
 
 import os
@@ -26,20 +26,9 @@ def get_save_mfcc(tgz_file,label):
             for i in columns:
                 column_str.append(str(i))
             sp_df1 = pd.DataFrame([],columns = ["speaker"]+column_str+["label",])
-            #print("Created new master dataframe")
-        #print("Extracting tgz file: ",tgz_file)
-        #extract(tgz_file, extract_path = '/tmp/audio')
-        #print("Finished extracting")
-        #print("Saving speaker's filename")
+            print("Created new master dataframe")
         filename = os.path.splitext(tgz_file)[0]
-        #print("Speaker's filename saved")
-        #print(filename)
-        #print("Extracting MFCC / features")
         feature = parser(filename+".wav")
-        #print("MFCCs have been extracted")
-        #print(feature)
-        #print("type of MFCC data object: ",type(feature))
-        #print("Creating dataframe for the speaker's MFCC data")
         columns = list((range(0,40)))
         column_str = []
         for i in columns:
@@ -49,15 +38,10 @@ def get_save_mfcc(tgz_file,label):
         curr_db["label"] = label
         #to ensure no additional columns are included (like "unnamed..."):
         sp_df = sp_df1[["speaker"]+column_str+["label"]]
-        #print("Created new dataframe with extracted MFCC data")
-        #print("Dimensions of current dataframe are: ", curr_db.shape)
-        #print("Dimensions of master dataframe are: ", sp_df.shape)
-        #print("Appending current speaker's MFCC data to master dataframe")
-        sp_df_new = sp_df.append(curr_db, ignore_index=True)
-        print("Successfully appended new data")
-        print("Saving appended dataframe to csv")
+        sp_df_new = sp_df.append(curr_db, ignore_index=True)  
         sp_df_new.to_csv('/tmp/audio/sp_df.csv')
-        print("Successfully updated master dataframe!")
+        print("Successfully updated master dataframe with ", filename)
+        print("New dimensions of the master dataframe: ", sp_df_new.shape)   
     except Exception as e:
         print(e)   
 
