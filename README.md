@@ -8,7 +8,7 @@
 
 Downloaded English and German speech from Voxforge (several other languages available as well): 
 
-1) write the following commands in (Linux) commandline (in the directory you want the speech data):  
+1) write the following command(s) in (Linux) commandline (in the directory you want the speech data):  
 
 wget -r -A.tgz http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original/48kHz_16bit/s
 
@@ -22,7 +22,7 @@ this will download all of the individual speaker files in .tgz format.
 
 This has been structured so that if the zipfile is extracted, tons of memory will be used up. Unzip file somewhere with sufficient memory
 
-4) run get_MFCC_wav.py script in directory with .wav files of German speech (in test and dev directories) to save MFCCs from this data to the database with the English MFCCs (but with the label of "German" of course)
+4) run "get_MFCC_wav.py script" in directory with .wav files of German speech (in test and dev directories) to save MFCCs from this data to the database with the English MFCCs (but with the label of "German" of course)
 
 * Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc.
 ** run the .py script (which will ask for language category, i.e. English) which will extract the .wav files one by one to the Root/tmp directory, deleting the extracted files once the MFCCs have been calculated. The MFCCs of all the speakers will be saved into a .csv which will also be in the Root/tmp directory.
