@@ -1,5 +1,7 @@
 '''
-script to get the MFCCs from all .wav files in same directory. The MFCCs will be saved to a master database. Input required: which language the speech data is.
+script to get the MFCCs from all .wav files in same directory. 
+The MFCCs will be saved to a master database. 
+Input required: which language the speech data is.
 '''
 
 import os
