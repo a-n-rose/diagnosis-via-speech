@@ -1,5 +1,6 @@
 '''
 script applies ANN to file with 40 MFCC columns and a binary label column
+saves model to "engerm_model_ann.json" with weights saved to "engerm_weights_ann.hd"
 
 '''
 
@@ -56,8 +57,6 @@ model.add(Activation('sigmoid'))
 #'binary_crossentropy' for binary output label
 model.compile(loss = 'binary_crossentropy',metrics = ['accuracy'], optimizer = 'adam')
 
-batch_size = 10
-epochs = 100
 model.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 
 y_pred = model.predict(X_test)
@@ -68,4 +67,14 @@ cm = confusion_matrix(y_test,y_pred)
 print("ANN applied with batch size of "+batch_size+" and "+ epochs+ " epochs")
 print(cm)
 
+
+# serialize model to JSON
+model_json = model.to_json()
+with open("engerm_model_ann.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("engerm_weights_ann.h5")
+print("Saved model to disk")
+batch_size = 10
+epochs = 100
 
