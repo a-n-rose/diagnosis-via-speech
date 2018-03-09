@@ -75,6 +75,3 @@ with open("engerm_model_ann.json", "w") as json_file:
 # serialize weights to HDF5
 model.save_weights("engerm_weights_ann.h5")
 print("Saved model to disk")
-batch_size = 10
-epochs = 100
-
