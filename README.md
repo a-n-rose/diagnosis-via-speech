@@ -18,7 +18,7 @@ there are several folders with speech data: the above folder is "48kHz_16bit". O
 
 this will download all of the individual speaker files in .tgz format. 
 
-2) run "extract_tgz_wav_concat_MFCC.py" in same directory as the .tgz file(s). This will save a new .csv in  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, and language/label (English). IF kept in this directory, the data from other languages, i.e. German (below) will be added. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
+2) run "extract_tgz_wav_concat_MFCC.py" in same directory as the .tgz file(s). This will save a new .csv in  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, and language/label (English). If kept in this directory, the data from other languages, i.e. German (below) will be added. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
 
 3) Downloaded German speech from: http://www.voxforge.org/home/forums/other-languages/german/open-speech-data-corpus-for-german
 
@@ -28,7 +28,7 @@ This has been structured so that if the zipfile is extracted, tons of memory wil
 
 * Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc. 
 
-Note: if you want to save the model into Json, need to install h5py. Can do this by typing into the commandline:
+Note: if you want to save the model to Json, need to install h5py. Can do this by typing into the commandline:
 pip3 install --user --upgrade h5py
 
 1) run "engerm_prep_ml.py" in same directory as "sp_df.csv" (the output file from the two 'get_MFCC_wav.py' and 'extract_tgz_wav_concat_MFCC.py' scripts). This will prepare the data for deep-learning. The new dataframe will be saved as "engerm_mfcc_ml.csv". Note: this script expects only 2 languages in dataset, English as well as another language. 
