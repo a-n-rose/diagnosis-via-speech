@@ -10,15 +10,15 @@ The speech I could most easily access at the moment was English (surprise!) and 
 
 I downloaded English and German speech from Voxforge (several other languages are available there as well): 
 
-1) to batch download the English data, write the following command(s) in (Linux) commandline (in the directory you want the speech data):  
+1) to batch download the English data, write the following command(s) in (Linux) commandline (in the directory you want the speech data) Note: this will save the speech in zipfiles at the following path, relative to where you call the command(s): www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original/  If you call multiple commands from the same directory, the zipfiles will be stored in their own corresponding folder (16kHz_16bit/) (i.e. the zipfiles won't get mixed together).
 
 wget -r -A.tgz http://www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original/48kHz_16bit/s
 
-there are several folders with speech data: the above folder is "48kHz_16bit". Other folders include "16kHz_16bit/","32kHz_16bit/","44.1kHz_16bit/","8kHz_16bit/". Just exchange the text and you will get the files in the other folders as well.
+there are several folders with speech data: the above folder is "48kHz_16bit" and has the most speech data. Other folders with varying amounts of speech data include "16kHz_16bit/","32kHz_16bit/","44.1kHz_16bit/","8kHz_16bit/". Just exchange the text and you will get the files in the other folders as well.
 
 this will download all of the individual speaker files in .tgz format. 
 
-2) run "extract_tgz_wav_concat_MFCC.py" in same directory as the .tgz file(s). This will save a new .csv in  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, and language/label (English). If kept in this directory, the data from other languages, i.e. German (below) will be added. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
+2) run "extract_MFCC_all_voxforge_English.py" in the parent directory of "www.repostory.voxforge1.org/" (i.e. probably your current directory). This will save a new .csv in  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, language/label (English), and kHz/bit size. If kept in this directory, the data from other languages, i.e. German (below) will be added. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
 
 3) Downloaded German speech from: http://www.voxforge.org/home/forums/other-languages/german/open-speech-data-corpus-for-german
 
