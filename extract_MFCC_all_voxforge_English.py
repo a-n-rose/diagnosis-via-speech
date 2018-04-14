@@ -9,6 +9,9 @@ get MFCCs in 25ms frames with window shifts of 10ms, save them to database in th
 then delete the extracted files in the tmp dir.
 
 If you apply this to all the English folders, it will take several hours to complete
+
+When I ran this, I ended up with a .pkl with a total of 9535354 (9531094 + 4260) rows and 15 columns, and for the each speaker, the 
+mfccs are time-based. I had to save it to a .csv in a separate script but it should work in this updated script.
 '''
 
 
@@ -142,11 +145,7 @@ except Exception as e:
 finally:
     try:
         sp_df1 = load()
-        finish = datetime.datetime.now()
-        sp_df1.to_csv("sp_df_updated_" + finish.isoformat()+'.csv')
-        print("collected MFCCs have been saved!")
-        finish2 = datetime.datetime.now()
-        print("program start time: ", start.isoformat())
-        print("program end time: ", finish2.isoformat())
+        sp_df1.to_csv("sp_df_updated.csv")
+        print("collected MFCCs have been saved to csv!")
     except Exception as e:
         print(e)
