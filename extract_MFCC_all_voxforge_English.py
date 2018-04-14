@@ -4,7 +4,7 @@ change your directory to:
 
 $ cd www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original
 
-This will collect all the folder names, and within each folder, extract one by one each .tgz file in /tmp/audio, get MFCCs, save to database in /tmp/audio then delete extracted files
+This will collect all the folder names, and within each folder, extract one by one each .tgz file in /tmp/audio, get MFCCs in 25ms frames with window shifts of 10ms, save them to database in the directory where this script is, then delete the extracted files in the tmp dir.
 '''
 
 
@@ -27,29 +27,28 @@ def extract(tar_url, extract_path='.'):
             extract(item.name, "./" + item.name[:item.name.rfind('/')])
             
 def parser(file):
-    X, sample_rate = librosa.load(file, res_type= 'kaiser_fast')
-    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
-    feature = mfccs
-    return feature
+    y, sr = librosa.load(file, res_type= 'kaiser_fast')
+    mfccs = librosa.feature.mfcc(y, sr, n_mfcc=13,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
+    return mfccs
     
-def get_save_mfcc(tgz_file,label,hz_type):
+def get_save_mfcc(tgz_file,label):
     try:
         try:
-            sp_df1 = pd.read_csv("/tmp/audio/sp_df.csv")
+            sp_df1 = pd.read_csv("../sp_df.csv")
             print(len(sp_df1))
         except:
-            columns = list((range(0,40)))
+            columns = list((range(0,13)))
             column_str = []
             for i in columns:
                 column_str.append(str(i))
-            sp_df1 = pd.DataFrame([],columns = ["speaker"]+column_str+["label","kHz_bit"])
+            sp_df1 = pd.DataFrame([],columns = ["file_name"]+column_str+["label"])
             print("Created new master dataframe")
         print("Extracting tgz file: ",tgz_file)
         extract(tgz_file, extract_path = '/tmp/audio')
         print("Finished extracting")
-        print("Saving speaker's filename")
+        print("Saving filename")
         filename = os.path.splitext(tgz_file)[0]
-        print("Speaker's filename saved")
+        print("Filename saved")
         print(filename)
         #concatenate .wav files to one (one .wav file per speaker)
         print("Concatenating speaker's .wav files")
@@ -68,26 +67,30 @@ def get_save_mfcc(tgz_file,label,hz_type):
             feature = parser("/tmp/audio/"+filename+"/comb_wav.wav")
             print("MFCCs have been extracted")
             print(feature)
+            print(feature.shape)
             print("type of MFCC data object: ",type(feature))
-            print("Creating dataframe for the speaker's MFCC data")
-            columns = list((range(0,40)))
+            print("Creating dataframe for the file's MFCC data")
+            columns = list((range(0,13)))
             column_str = []
             for i in columns:
                 column_str.append(str(i))
-            curr_db = pd.DataFrame([feature], columns = column_str)
-            curr_db.insert(0,"speaker",filename)
+            print("column names are:")
+            print(column_str)
+            feature_df = pd.DataFrame(feature)
+            curr_db = pd.DataFrame.transpose(feature_df)
+            curr_db.columns = column_str
+            curr_db.insert(0,"file_name",filename)
             curr_db["label"] = label
-            curr_db["kHz_bit"] = hz_type
             #to ensure no additional columns are included (like "unnamed..."):
-            sp_df = sp_df1[["speaker"]+column_str+["label","kHz_bit"]]
+            sp_df = sp_df1[["file_name"]+column_str+["label"]]
             print("Created new dataframe with extracted MFCC data")
             print("Dimensions of current dataframe are: ", curr_db.shape)
             print("Dimensions of master dataframe are: ", sp_df.shape)
-            print("Appending current speaker's MFCC data to master dataframe")
+            print("Appending current file's MFCC data to master dataframe")
             sp_df_new = sp_df.append(curr_db, ignore_index=True)
             print("Successfully appended new data")
             print("Saving appended dataframe to csv")
-            sp_df_new.to_csv('/tmp/audio/sp_df.csv')
+            sp_df_new.to_csv("../sp_df.csv")
             print("Successfully updated master dataframe!")
             print("Removing extracted directory")
             shutil.rmtree('/tmp/audio/'+filename)
@@ -96,7 +99,7 @@ def get_save_mfcc(tgz_file,label,hz_type):
         print(e)
 
 
-label = input("In which language are these speech files? ")
+label = input("Which category are these speech files? ")
 
 dir_list = []
 for dirname in glob.glob('*/'):
@@ -109,8 +112,5 @@ for directory in dir_list:
     for tgz in glob.glob('*.tgz'):
         files_list.append(tgz)
     fl_df = pd.DataFrame(files_list)
-    fl_df[0].apply(lambda x: get_save_mfcc(x,label,dirname))
-
-
-
-
+    fl_df[0].apply(lambda x: get_save_mfcc(x,label))
+    os.chdir("..")
