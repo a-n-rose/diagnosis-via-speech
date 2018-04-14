@@ -4,7 +4,11 @@ change your directory to:
 
 $ cd www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original
 
-This will collect all the folder names, and within each folder, extract one by one each .tgz file in /tmp/audio, get MFCCs in 25ms frames with window shifts of 10ms, save them to database in the directory where this script is, then delete the extracted files in the tmp dir.
+This will collect all the folder names, and within each folder, extract one by one each .tgz file in /tmp/audio, 
+get MFCCs in 25ms frames with window shifts of 10ms, save them to database in the directory where this script is, 
+then delete the extracted files in the tmp dir.
+
+If you apply this to all the English folders, it will take several hours to complete
 '''
 
 
@@ -16,6 +20,26 @@ import glob
 from pydub import AudioSegment
 import shutil
 from shutil import rmtree
+import datetime
+
+import _pickle as cpickle
+
+
+start = datetime.datetime.now()
+
+def load(path = None):
+    if path:
+        df = cpickle.load( open(path+"sp_df.pkl","rb"))
+    else:
+        df = cpickle.load( open("sp_df.pkl","rb"))
+    return df
+
+def update(df, path = None):
+    if path: 
+        cpickle.dump(df, open(path+"sp_df.pkl","wb"))
+    else:
+        cpickle.dump( df, open("sp_df.pkl","wb"))    
+
 
 #'.' below means current directory
 def extract(tar_url, extract_path='.'):
@@ -32,17 +56,8 @@ def parser(file):
     return mfccs
     
 def get_save_mfcc(tgz_file,label):
+    sp_df1 = load("../")
     try:
-        try:
-            sp_df1 = pd.read_csv("../sp_df.csv")
-            print(len(sp_df1))
-        except:
-            columns = list((range(0,13)))
-            column_str = []
-            for i in columns:
-                column_str.append(str(i))
-            sp_df1 = pd.DataFrame([],columns = ["file_name"]+column_str+["label"])
-            print("Created new master dataframe")
         print("Extracting tgz file: ",tgz_file)
         extract(tgz_file, extract_path = '/tmp/audio')
         print("Finished extracting")
@@ -66,16 +81,11 @@ def get_save_mfcc(tgz_file,label):
             print("Extracting MFCC / features")
             feature = parser("/tmp/audio/"+filename+"/comb_wav.wav")
             print("MFCCs have been extracted")
-            print(feature)
-            print(feature.shape)
-            print("type of MFCC data object: ",type(feature))
             print("Creating dataframe for the file's MFCC data")
             columns = list((range(0,13)))
             column_str = []
             for i in columns:
                 column_str.append(str(i))
-            print("column names are:")
-            print(column_str)
             feature_df = pd.DataFrame(feature)
             curr_db = pd.DataFrame.transpose(feature_df)
             curr_db.columns = column_str
@@ -89,12 +99,11 @@ def get_save_mfcc(tgz_file,label):
             print("Appending current file's MFCC data to master dataframe")
             sp_df_new = sp_df.append(curr_db, ignore_index=True)
             print("Successfully appended new data")
-            print("Saving appended dataframe to csv")
-            sp_df_new.to_csv("../sp_df.csv")
-            print("Successfully updated master dataframe!")
             print("Removing extracted directory")
             shutil.rmtree('/tmp/audio/'+filename)
             print("Directory removed!")
+            print("Saving appended dataframe to external variable")
+            update(sp_df_new,'../')
     except Exception as e:
         print(e)
 
@@ -105,12 +114,39 @@ dir_list = []
 for dirname in glob.glob('*/'):
     dir_list.append(dirname)
 
-for directory in dir_list:
-    os.chdir(directory)
-    dirname = directory[:-1]
-    files_list = []
-    for tgz in glob.glob('*.tgz'):
-        files_list.append(tgz)
-    fl_df = pd.DataFrame(files_list)
-    fl_df[0].apply(lambda x: get_save_mfcc(x,label))
-    os.chdir("..")
+try:
+    sp_df1 = pd.read_csv("sp_df.csv")
+    print("here is the length of the dataframe: ", len(sp_df1))
+    update(sp_df1)
+except:
+    columns = list((range(0,13)))
+    column_str = []
+    for i in columns:
+        column_str.append(str(i))
+    sp_df1 = pd.DataFrame([],columns = ["file_name"]+column_str+["label"])
+    print("Created new master dataframe")
+    update(sp_df1)
+
+try:
+    for directory in dir_list:
+        os.chdir(directory)
+        dirname = directory[:-1]
+        files_list = []
+        for tgz in glob.glob('*.tgz'):
+            files_list.append(tgz)
+        fl_df = pd.DataFrame(files_list)
+        fl_df[0].apply(lambda x: get_save_mfcc(x,label))
+        os.chdir("..")
+except Exception as e:
+    print(e)
+finally:
+    try:
+        sp_df1 = load()
+        finish = datetime.datetime.now()
+        sp_df1.to_csv("sp_df_updated_" + finish.isoformat()+'.csv')
+        print("collected MFCCs have been saved!")
+        finish2 = datetime.datetime.now()
+        print("program start time: ", start.isoformat())
+        print("program end time: ", finish2.isoformat())
+    except Exception as e:
+        print(e)
