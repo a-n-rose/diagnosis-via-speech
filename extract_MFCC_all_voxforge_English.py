@@ -10,8 +10,10 @@ then delete the extracted files in the tmp dir.
 
 If you apply this to all the English folders, it will take several hours to complete
 
-When I ran this, I ended up with a .pkl with a total of 9535354 (9531094 + 4260) rows and 15 columns, and for the each speaker, the 
+When I ran this, I ended up with a .pkl with a total of 9535354 (9531094 + 4260) rows and 15 columns (1 for the filename, 
+13 for MFCCs, and 1 for speech category(i.e. English)), and for each speaker, the 
 mfccs are time-based. I had to save it to a .csv in a separate script but it should work in this updated script.
+*I had a bug in the df.to_csv() code, I suppose, but all the data was saved in the pickel file. 
 '''
 
 
