@@ -6,6 +6,10 @@
 ## Phase 1: general speech - experiment with neural networks
 * Experiment with how neural networks learn from speech data. Collect a lot of speech data and extract relevant features.
 
+#### Questions/Issues
+* Which speech features work best to train neural networks as I need? How many MFCCs? 13? 40? 
+** helpful article: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.75.8303&rep=rep1&type=pdf
+
 The speech I could most easily access at the moment was English (surprise!) and a bit of German. I decided to train neural networks on English and German and see if it could learn which langauge was which with new input.
 
 I downloaded English and German speech from Voxforge (several other languages are available there as well): 
