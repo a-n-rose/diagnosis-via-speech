@@ -18,15 +18,15 @@ there are several folders with speech data: the above folder is "48kHz_16bit" an
 
 this will download all of the individual speaker files in .tgz format. 
 
-2) run "extract_MFCC_all_voxforge_English.py" in the parent directory of "www.repostory.voxforge1.org/" (i.e. probably your current directory). This will save a new .csv in  Root/tmp/audio directory. This .csv will include columns for the speaker/filename, MFCCs, language/label (English), and kHz/bit size. If kept in this directory, the data from other languages, i.e. German (below) will be added. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
+2) run "MFCC13_zip_wav_sqlite3.py" in the parent directory of where the "48kHz_16bit" etc. folders are located (e.g. www.repository.voxforge1.org/downloads/SpeechCorpus/Trunk/Audio/Original). This will save the wave files' MFCCs (13, at 25ms windows w 10ms shifts) to a database "sp_mfcc" in the table "mfcc_13" in the current directory, via sqlite3. Note: you will be asked for which language category the speech is. Type in "English" or whatever label you want to use for the data. This label will be combined with the wave file's directory label to keep track of which group of files it belongs to (i.e. "48kHz_16bit" vs  "8kHz_16bit" in case that is relevant to your purpose). This can be used as the dependent variable/category for training a neural network.
 
 3) Downloaded German speech from: http://www.voxforge.org/home/forums/other-languages/german/open-speech-data-corpus-for-german
 
-This has been structured so that if the zipfile is extracted, tons of memory will be used up. Unzip file somewhere with sufficient memory
+This has been structured so that if the zipfile is extracted, tons of memory will be used up. Unzip file somewhere with sufficient memory. I think it needs a total of 20GiB. 
 
-4) run "get_MFCC_wav.py script" in directory with .wav files of German speech (in test and dev directories) to save MFCCs from this data to the database with the English MFCCs (but with the label of "German" of course). Note: you will be asked for which language category the speech is. Type in "German" or whatever label you want to use for the data. This will be used as the dependent variable/category the neural network will be trained on.
+4) run "MFCC13_wav_sqlite3.py script" in the directory where the folders "test", "dev", and "train" are located. The wave files in each directory will be processed and their MFCCs (13, with 25ms windows at 10ms shifts) will be saved to a database "sp_mfcc", in the table "mfcc_13" via sqlite3. Note: you will be asked for which language category the speech is. Type in "German" or whatever label you want to use for the data. The label will be combined with the folder name the wave file is saved in. This label can be used as the dependent variable/category the neural network will be trained on.
 
-* Learn how to apply neural networks to speech of various languages, men vs women (if possible), adults vs children, differnt emotions, etc. 
+* Learn how to apply neural networks to speech of various languages, men vs women, adults vs children, differnt emotions, etc. 
 
 Note: if you want to save the model to Json, need to install h5py. Can do this by typing into the commandline:
 pip3 install --user --upgrade h5py
