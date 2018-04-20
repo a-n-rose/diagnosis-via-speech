@@ -19,20 +19,28 @@ import time
 
 start = time.time()
 batch_size = 100
-epochs = 500
+epochs = 10
 
+print("connecting to database")
 conn = sqlite3.connect("sp_mfcc.db")
 c = conn.cursor()
 
-#get English MFCC data
-c.execute("SELECT * FROM mfcc13_English") 
-data_English = c.fetchall()
+#this is taking a long time for the German data... hopefully nothing wrong with the database...
+try:
+    #get English MFCC data
+    print("collecting English data")
+    c.execute("SELECT * FROM mfcc13_English") 
+    data_English = c.fetchall()
 
-#get German MFCC data
-c.execute("SELECT * FROM mfcc_13") 
-data_German = c.fetchall()
-
-
+    #get German MFCC data
+    print("collecting German data")
+    c.execute("SELECT * FROM mfcc_13") 
+    data_German = c.fetchall()
+except Exception as e:
+    print(e)
+    
+    
+print("combining data and preparing it for training the ann")
 #put in pandas dataframe
 df_g = pd.DataFrame(data_German)
 df_e = pd.DataFrame(data_English)
@@ -41,6 +49,7 @@ df_g[14] = 1
 #identifying English as 0
 df_e[14] = 0
 
+print("matching number of rows of English and German data")
 #match row length
 rows_g = df_g.shape[0]
 rows_e = df_e.shape[0]
@@ -60,7 +69,10 @@ y = x[:,-1]
 
 
 dataprep_time = time.time()
+print("Data is prepared. Time total: ", dataprep_time-start, " sec")
 
+
+print("Now creating ann classifier")
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
@@ -71,38 +83,42 @@ from keras.layers import Dense, Dropout, Activation
 # Splitting the dataset into the Training set and Test set
 from sklearn.cross_validation import train_test_split
 # from sklearn.model_selection import train_test_split
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
-if len(y.shape) > 1:
-    num_labels = y.shape[1]
-else:
-    num_labels = len(y.shape)
+num_labels = len(np.unique(y))
+if num_labels == 2:
+    num_labels =1
 
 filter_size = 2
 num_inputs = X.shape[1]
 
 #build model
-model = Sequential()
+print("Building classifier model")
+#initialize model:
+classifier = Sequential()
 #used the average between number of input features and output labels: (12+1)/2 --> appx. 6
-num_outputs = 1
+num_outputs = num_labels
 av_inout = int((num_inputs+num_outputs)/2)
-model.add(Dense(av_inout,input_shape = (num_inputs,) ))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
 
-model.add(Dense(av_inout))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
+#add input layer and first hidden layer:
+classifier.add(Dense(output_dim = av_inout, init = 'uniform', activation = 'relu', input_dim = num_inputs))
 
-model.add(Dense(num_labels))
-#since output labels are binary, use sigmoid here. Otherwise, softmax
-model.add(Activation('sigmoid'))
+#add second hidden layer:
+classifier.add(Dense(output_dim = av_inout, init = 'uniform', activation = 'relu'))
+
+#add the output layer:
+classifier.add(Dense(output_dim = num_outputs, init = 'uniform', activation = 'sigmoid'))  
+
+#compile ANN
 #'binary_crossentropy' for binary output label
-model.compile(loss = 'binary_crossentropy',metrics = ['accuracy'], optimizer = 'adam')
+classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy',metrics = ['accuracy'])
 
-model.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
+print("Model complete. Now training it on the data with batchsize of ", batch_size, " and ", epochs, " epochs")
+classifier.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 
-y_pred = model.predict(X_test)
+print("Training model complete")
+y_pred = classifier.predict(X_test)
 y_pred = (y_pred > 0.5)
 
 model_time = time.time()
@@ -110,15 +126,16 @@ model_time = time.time()
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test,y_pred)
 print("ANN applied with batch size of "+batch_size+" and "+ epochs+ " epochs")
+print("Confusion Matrix:")
 print(cm)
 
-
+print("Saving model and weights")
 # serialize model to JSON
-model_json = model.to_json()
+model_json = classifier.to_json()
 with open("engerm_annmodel_13mfcc.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("engerm_annweights_13mfcc.h5")
+classifier.save_weights("engerm_annweights_13mfcc.h5")
 print("Saved model to disk")
 
 total_time = time.time()
