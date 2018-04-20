@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Apr 20 09:57:43 2018
-
-@author: airos
-
 script pulls data from sqlite3 database and applies ANN to 12 MFCC columns and a binary label column
 saves model to "engerm_annmodel_13mfcc.json" with weights saved to "engerm_annweights_13mfcc.hd"
 
