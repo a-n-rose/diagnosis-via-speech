@@ -20,7 +20,6 @@ import glob
 import sqlite3
 import time
 
-
 def parser(file,num_mfcc):
     y, sr = librosa.load(file, res_type= 'kaiser_fast')
     mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
@@ -48,18 +47,14 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc):
                 col_var+=' ?,'
             else:
                 col_var+=' ?'
-        print()
         c.executemany(' INSERT INTO mfcc_13 VALUES (%s) ' % col_var,x)
         conn.commit()   
     except Exception as e:
         print(e)
-
-
-
+        
 #initialize database
 conn = sqlite3.connect('sp_mfcc.db')
 c = conn.cursor()
-
 
 label = input("Which category is this speech? ")
 prog_start = time.time()
@@ -76,7 +71,6 @@ try:
 except Exception as e:
     print(e)
 
-
 #collect directory names:
 dir_list = []
 for dirname in glob.glob('*/'):
@@ -85,7 +79,6 @@ if len(dir_list) > 0:
     print("The directories found include: ", dir_list)
 else:
     print("No directories found")
-
 
 try:
     for j in range(len(dir_list)):
