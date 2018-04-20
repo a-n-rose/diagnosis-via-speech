@@ -11,55 +11,76 @@ saves model to "engerm_annmodel_13mfcc.json" with weights saved to "engerm_annwe
 This particular model uses 100 batch_size and 500 epochs
 """
 
-
+ 
 import pandas as pd
 import sqlite3
+from sqlite3 import Error
 import numpy as np
 import time
+
+
+def create_connection(db_file):
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Error as e:
+        print(e)
+        
+    return None
+
+def create_cursor(conn):
+    try:
+        return conn.cursor()
+    except Error as e:
+        print(e)
+
+def table2dataframe(c,table,lim = 10):
+    try:
+        limit = str(lim)
+        c.execute("SELECT * FROM "+table+" LIMIT " + limit)
+        data = c.fetchall()
+        df = pd.DataFrame(data)
+        return df
+    except Error as e:
+        print(e)
+    
+    return None
+
 
 start = time.time()
 batch_size = 100
 epochs = 10
 
 print("connecting to database")
-conn = sqlite3.connect("sp_mfcc.db")
-c = conn.cursor()
+conn = create_connection('sp_mfcc.db')
+c = create_cursor(conn)
 
-#this is taking a long time for the German data... hopefully nothing wrong with the database...
+
 try:
     #get English MFCC data
-    print("collecting English data")
-    c.execute("SELECT * FROM mfcc13_English") 
-    data_English = c.fetchall()
+    print("collecting English data --> df")
+    #limit number of rows retrieved to 1000
+    df_e = table2dataframe(c,'mfcc13_English',1000)
 
     #get German MFCC data
-    print("collecting German data")
-    c.execute("SELECT * FROM mfcc_13") 
-    data_German = c.fetchall()
+    print("collecting German data --> df")
+    df_g = table2dataframe(c,'mfcc_13',1000)
+
 except Exception as e:
     print(e)
     
     
 print("combining data and preparing it for training the ann")
-#put in pandas dataframe
-df_g = pd.DataFrame(data_German)
-df_e = pd.DataFrame(data_English)
-#identifying German as 1
+
+#identify German as 1
 df_g[14] = 1
-#identifying English as 0
+#identify English as 0
 df_e[14] = 0
 
-print("matching number of rows of English and German data")
-#match row length
-rows_g = df_g.shape[0]
-rows_e = df_e.shape[0]
-min_rows = min(rows_g,rows_e)
-df_g2 = df_g.iloc[:min_rows]
-df_e2 = df_e.iloc[:min_rows]
-comb_df = pd.concat([df_g2,df_e2])
+comb_df = pd.concat([df_g,df_e])
 
 x1 = comb_df.as_matrix()
-#remove filename and first mfcc coefficient (only deals with noise level)
+#remove filename and first mfcc coefficient (only refers to noise level)
 x = x1[:,2:]
 
 
@@ -67,10 +88,8 @@ x = x1[:,2:]
 X = x[:,:-1]
 y = x[:,-1]
 
-
 dataprep_time = time.time()
 print("Data is prepared. Time total: ", dataprep_time-start, " sec")
-
 
 print("Now creating ann classifier")
 import keras
@@ -140,6 +159,6 @@ print("Saved model to disk")
 
 total_time = time.time()
 
-print("Time to prepare data: ", dataprep_time, " sec" )
-print("Time to train model: ", model_time, " sec")
-print("Time to complete program and save models and weights: ", total_time, " sec")
+print("Time to prepare data: ", dataprep_time-start, " sec" )
+print("Time to train model: ", model_time-start, " sec")
+print("Time to complete program and save models and weights: ", total_time-start, " sec")
