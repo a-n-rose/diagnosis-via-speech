@@ -69,9 +69,9 @@ except Exception as e:
 print("combining data and preparing it for training the ann")
 
 #identify German as 1
-df_g[14] = 1
+df_g[14] = True
 #identify English as 0
-df_e[14] = 0
+df_e[14] = False
 
 comb_df = pd.concat([df_g,df_e])
 
@@ -135,22 +135,22 @@ classifier.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 print("Training model complete")
 y_pred = classifier.predict(X_test)
 y_pred = (y_pred > 0.5)
+y_pred = np.squeeze(y_pred)
+print(y_pred.shape)
+print(y_test.shape)
+print(np.unique(y_test))
+print(np.unique(y_pred))
 
 model_time = time.time()
 
-from sklearn.metrics import confusion_matrix
-cm = confusion_matrix(y_test,y_pred)
-print("ANN applied with batch size of "+batch_size+" and "+ epochs+ " epochs")
-print("Confusion Matrix:")
-print(cm)
 
 print("Saving model and weights")
 # serialize model to JSON
 model_json = classifier.to_json()
-with open("engerm_annmodel_13mfcc.json", "w") as json_file:
+with open("engerm_annmodel_13mfcc_1000.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-classifier.save_weights("engerm_annweights_13mfcc.h5")
+classifier.save_weights("engerm_annweights_13mfcc_1000.h5")
 print("Saved model to disk")
 
 total_time = time.time()
