@@ -9,6 +9,9 @@ The MFCCs will be saved to a database "sp_mfcc.db" in the cwd via SQLite3, in a 
 
 note: to distinguish the differences of the files between the folders, the "label" (i.e. the input provided by the user) 
 is combined with the file's folder name and saved in the database.
+
+time: to process all the Voxforge German files in the 'test','dev', and 'train' directories, it took  34523.29967880249 seconds 
+(or 9.5897222222222 hours) 
 '''
 import os
 import pandas as pd
