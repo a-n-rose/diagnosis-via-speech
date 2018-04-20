@@ -4,7 +4,7 @@
 script pulls data from sqlite3 database and applies ANN to 12 MFCC columns and a binary label column
 saves model to "engerm_annmodel_13mfcc.json" with weights saved to "engerm_annweights_13mfcc.hd"
 
-This particular model uses 100 batch_size and 500 epochs
+This particular model uses 100 batch_size and 10 epochs
 """
 
  
