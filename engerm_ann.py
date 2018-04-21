@@ -141,7 +141,6 @@ y_pred = (y_pred > 0.5)
 from sklearn.metrics import confusion_matrix
 y_test=y_test.astype(bool)
 cm = confusion_matrix(y_test, y_pred)
-cm = confusion_matrix(y_test,y_pred)
 print("Confusion Matrix:")
 print(cm)
 
