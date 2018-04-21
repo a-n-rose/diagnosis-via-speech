@@ -25,10 +25,10 @@ def parser(file,num_mfcc):
     mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
     return mfccs
 
-def get_save_mfcc(tgz_file,label,dirname,num_mfcc):
+def get_save_mfcc(file,label,dirname,num_mfcc):
     label = label+"_"+dirname
     try:
-        filename = os.path.splitext(tgz_file)[0]
+        filename = os.path.splitext(file)[0]
         feature = parser(filename+".wav",num_mfcc)
         columns = list((range(0,num_mfcc)))
         column_str = []
