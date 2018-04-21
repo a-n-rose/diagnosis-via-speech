@@ -80,7 +80,7 @@ y = x[:,-1]
 
 # evaluate loaded model on new data
 try:
-    loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    loaded_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     score = loaded_model.evaluate(X, y, verbose=0)
     print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
 except Exception as e:
