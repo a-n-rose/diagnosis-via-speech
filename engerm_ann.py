@@ -46,6 +46,7 @@ def table2dataframe(c,table,lim = 10):
 start = time.time()
 batch_size = 100
 epochs = 10
+num_rows = 1000
 
 print("connecting to database")
 conn = create_connection('sp_mfcc.db')
@@ -69,9 +70,9 @@ except Exception as e:
 print("combining data and preparing it for training the ann")
 
 #identify German as 1
-df_g[14] = True
+df_g[14] = 1
 #identify English as 0
-df_e[14] = False
+df_e[14] = 0
 
 comb_df = pd.concat([df_g,df_e])
 
@@ -91,13 +92,10 @@ print("Now creating ann classifier")
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
-#from keras.optimizers import Adam
-#from sklearn import metrics
 
 
 # Splitting the dataset into the Training set and Test set
 from sklearn.cross_validation import train_test_split
-# from sklearn.model_selection import train_test_split
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
@@ -117,40 +115,44 @@ num_outputs = num_labels
 av_inout = int((num_inputs+num_outputs)/2)
 
 #add input layer and first hidden layer:
-classifier.add(Dense(output_dim = av_inout, init = 'uniform', activation = 'relu', input_dim = num_inputs))
+classifier.add(Dense(activation="relu", units=av_inout, input_dim=num_inputs, kernel_initializer="uniform"))
 
 #add second hidden layer:
-classifier.add(Dense(output_dim = av_inout, init = 'uniform', activation = 'relu'))
+classifier.add(Dense(activation = 'relu', units = av_inout, kernel_initializer = 'uniform'))
 
 #add the output layer:
-classifier.add(Dense(output_dim = num_outputs, init = 'uniform', activation = 'sigmoid'))  
+classifier.add(Dense(activation = 'sigmoid', units = num_outputs, kernel_initializer = 'uniform'))  
 
 #compile ANN
 #'binary_crossentropy' for binary output label
 classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy',metrics = ['accuracy'])
 
+
+
+
 print("Model complete. Now training it on the data with batchsize of ", batch_size, " and ", epochs, " epochs")
 classifier.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 
 print("Training model complete")
+
 y_pred = classifier.predict(X_test)
 y_pred = (y_pred > 0.5)
-y_pred = np.squeeze(y_pred)
-print(y_pred.shape)
-print(y_test.shape)
-print(np.unique(y_test))
-print(np.unique(y_pred))
+from sklearn.metrics import confusion_matrix
+y_test=y_test.astype(bool)
+cm = confusion_matrix(y_test, y_pred)
+cm = confusion_matrix(y_test,y_pred)
+print("Confusion Matrix:")
+print(cm)
 
 model_time = time.time()
-
 
 print("Saving model and weights")
 # serialize model to JSON
 model_json = classifier.to_json()
-with open("engerm_annmodel_13mfcc_1000.json", "w") as json_file:
+with open("engerm_annmodel_13mfcc_"+str(num_rows)+".json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-classifier.save_weights("engerm_annweights_13mfcc_1000.h5")
+classifier.save_weights("engerm_annweights_13mfcc_"+str(num_rows)+".h5")
 print("Saved model to disk")
 
 total_time = time.time()
