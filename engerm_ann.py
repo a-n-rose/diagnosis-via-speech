@@ -45,7 +45,7 @@ def table2dataframe(c,table,lim = 10):
 
 start = time.time()
 batch_size = 100
-epochs = 10
+epochs = 100
 num_rows = 1000
 
 print("connecting to database")
@@ -56,12 +56,12 @@ c = create_cursor(conn)
 try:
     #get English MFCC data
     print("collecting English data --> df")
-    #limit number of rows retrieved to 1000
-    df_e = table2dataframe(c,'mfcc13_English',1000)
+    #limit number of rows retrieved to specified number
+    df_e = table2dataframe(c,'mfcc13_English',num_rows)
 
     #get German MFCC data
     print("collecting German data --> df")
-    df_g = table2dataframe(c,'mfcc_13',1000)
+    df_g = table2dataframe(c,'mfcc_13',num_rows)
 
 except Exception as e:
     print(e)
@@ -133,6 +133,7 @@ classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy',metrics = ['
 print("Model complete. Now training it on the data with batchsize of ", batch_size, " and ", epochs, " epochs")
 classifier.fit(X_train,y_train,batch_size = batch_size, epochs = epochs)
 
+model_time = time.time()
 print("Training model complete")
 
 y_pred = classifier.predict(X_test)
@@ -144,15 +145,14 @@ cm = confusion_matrix(y_test,y_pred)
 print("Confusion Matrix:")
 print(cm)
 
-model_time = time.time()
 
 print("Saving model and weights")
 # serialize model to JSON
 model_json = classifier.to_json()
-with open("engerm_annmodel_13mfcc_"+str(num_rows)+".json", "w") as json_file:
+with open("engerm_annmodel_13mfcc_"+str(epochs)+"epochs_"+str(num_rows)+".json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-classifier.save_weights("engerm_annweights_13mfcc_"+str(num_rows)+".h5")
+classifier.save_weights("engerm_annweights_13mfcc_"+str(epochs)+"epochs_"+str(num_rows)+".h5")
 print("Saved model to disk")
 
 total_time = time.time()
