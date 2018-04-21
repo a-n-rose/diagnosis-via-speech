@@ -2,6 +2,8 @@
 uploads previously saved ANN model, specific for the English-German MFCC ANN model
 runs the model with "new" data and prints accuracy
 '''
+import tensorflow as tf
+import keras
 from keras.models import model_from_json
 import pandas as pd
 import numpy as np
