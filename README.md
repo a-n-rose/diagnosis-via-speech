@@ -9,6 +9,12 @@
 #### Questions/Issues
 * Which speech features work best to train neural networks as I need? How many MFCCs? 13? 40? 
 ** helpful article: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.75.8303&rep=rep1&type=pdf
+* Trained an ANN on the English and German data then tested my English speech and my husband's German speech
+** around 80% accuracy on my speech and...
+** 0% for my husband's :( still trying to figure out what's going on there... 
+* Do I need to normalize all the MFCC data before training, and therefore also new MFCC data?
+* I need to test the models I trained on other data 
+* I plan on visualizing the training process on TensorBoard or Embedding
 
 The speech I could most easily access at the moment was English (surprise!) and a bit of German. I decided to train neural networks on English and German and see if it could learn which langauge was which with new input.
 
