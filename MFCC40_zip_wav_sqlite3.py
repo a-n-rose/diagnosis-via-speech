@@ -6,6 +6,7 @@ This will collect all the folder names, and within each folder, extract one by o
 get MFCCs in 25ms frames with window shifts of 10ms, save them to database "sp_mfcc" in table
 "mfcc_40", in the directory where this script is, then delete the extracted files in the tmp dir.
 If you apply this to all the English folders, it will take several hours to complete.
+(i.e. it took my script 35498.532019138336 seconds (9,860703338649538 hours) to complete)
 
 This script allows you to see how far along the program is in each directory
 
@@ -130,11 +131,15 @@ try:
         files_list = []
         for tgz in glob.glob('*.tgz'):
             files_list.append(tgz)
-        if len(files_list) == 0:
+        if len(files_list) != 0:
+            for i in range(len(files_list)):
+                extract_save_mfcc(files_list[i],label,dirname,num_mfcc)
+                if len(files_list) > 1:
+                    print("Progress: ", (i/(len(files_list)-1))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
+                else:
+                    print("Progress: ", ("100 %  (",dirname,": ",j+1,"/",len(dir_list)," directories)"))
+        else:
             print("No .tgz files found in ", dirname)
-        for i in range(len(files_list)):
-            extract_save_mfcc(files_list[i],label,dirname,num_mfcc)
-            print("Progress: ", (i/(len(files_list)-1))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
         os.chdir("..")
 except Exception as e:
     print(e)
