@@ -93,7 +93,7 @@ try:
             print("No wave files found in ", dirname)
         for i in range(len(files_list)):
             get_save_mfcc(files_list[i],label,dirname,num_mfcc)
-            print("Progress: ", (i/(len(files_list)-1))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
+            print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
         os.chdir("..")
         print("The Wave files in the "+ dirname + " directory have been processed successfully")
 except Exception as e:
