@@ -6,6 +6,9 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
 note: to distinguish the differences of the files between the folders, the "label" (i.e. the input provided by the user) is combined with the file's folder name and saved in the database.
+
+To go through all the 'dev', 'train', and 'test' folders, it took this program 36004.13554787636 seconds (10.001148763298989 hours) 
+
 '''
 
 
