@@ -57,6 +57,9 @@ def table2dataframe(c,table,lim = None):
 db_list = []
 for db in glob.glob('*.db'):
     db_list.append(db)
+ 
+if len(db_list) == 0:
+    print("No databases found")
     
 print("Available databases include: ", db_list)
 database = input("Which database would you like to access? ")
