@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 print("Columns: \n", currdf.columns)
                 currdf.explore_depvar()
                 print()
-                print("Dependent Variable type: \n", currdf.depvar_type,"\n")
+                print("Dependent variable (i.e. column {}) type: \n".format(currdf.columns[-1]), currdf.depvar_type,"\n")
                 print("Number of dependent variables: \n", currdf.depvar_numunique,"\n")
                 print("Dependent Variable(s): \n",currdf.depvar,"\n")
                 print("Standard deviation of applicable columns: \n",currdf.calc_std(),"\n")
