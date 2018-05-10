@@ -18,7 +18,6 @@ import pandas as pd
 import numpy as np
 import glob
 
-
 class Find_SQL_DB:
     '''
     Collects all databases in the current working directory
@@ -27,7 +26,6 @@ class Find_SQL_DB:
     def __init__(self):
         self.db_list = [db for db in glob.glob('*.db')]
         self.db_names = '%s' % ', '.join(self.db_list)
-        
         
 class Explore_SQL:
     '''
@@ -101,7 +99,7 @@ class Explore_Data:
             df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
         else:
             df = self.dataframe
-        data_std = [(self.columns[col],np.std(df[col])) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
+        data_std = [(self.columns[col],np.std(df[col])) for col in range(len(self.columns)) if isinstance(df[col].iloc[0],float)]
         return(data_std)
         
     def calc_range(self):
@@ -109,7 +107,7 @@ class Explore_Data:
             df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
         else:
             df = self.dataframe
-        data_range = [(self.columns[col],(max(df[col])-min(df[col]))) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
+        data_range = [(self.columns[col],(max(df[col])-min(df[col]))) for col in range(len(self.columns)) if isinstance(df[col].iloc[0],float)]
         return(data_range)
     
     def calc_iqr(self):
@@ -117,7 +115,7 @@ class Explore_Data:
             df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
         else:
             df = self.dataframe
-        data_iqr = [(self.columns[col],np.subtract(*np.percentile(df[col],[75,25]))) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
+        data_iqr = [(self.columns[col],np.subtract(*np.percentile(df[col],[75,25]))) for col in range(len(self.columns)) if isinstance(df[col].iloc[0],float)]
         return(data_iqr)
         
     def explore_depvar(self):
@@ -129,10 +127,7 @@ class Explore_Data:
     
     def print_profile(self,table_name,dep_var = None):
         try:
-            if dep_var:
-                self.spec_depvar = dep_var
-            else:
-                self.spec_depvar = None
+            self.spec_depvar = dep_var
             print()
             print('#'*80,'\n')
             print("SQL table --",table_name,"-- profile: \n")
