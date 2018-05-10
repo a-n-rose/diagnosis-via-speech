@@ -9,6 +9,8 @@ Does a quick check of SQL databases and tables.
 Can compare depending on categories (i.e. dependent variable)
 Input required.
 
+requires 'checkSQL_db.py' to be in same working directory
+
 """
 
 from checkSQL_db import Find_SQL_DB, Explore_SQL, Explore_Data
@@ -103,7 +105,6 @@ if __name__ == '__main__':
                             pause_explore = False
                         else:
                             print("\nPlease enter 'yes' or 'no'\n")
-                
         else:
             print("\n!! No tables found in database\n")
     else:
