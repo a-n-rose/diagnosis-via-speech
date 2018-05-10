@@ -12,19 +12,26 @@ Input required.
 
 from checkSQL_db import Find_SQL_DB, Explore_SQL, Explore_Data
 
-
-
+class Error_Msg:
+    def __init__(self):
+        self.msg = 'ERROR!'
+        self.att = "\n"+('!*'*20)+"\n"
+    
 if __name__ == '__main__':
+    int_ValError = Error_Msg()
+    int_ValError.msg = "\nValue must be an integer\n"
+    index_Error = Error_Msg()
+    gen_Error = Error_Msg()
     
     dbs = Find_SQL_DB()
     dbs_list = dbs.db_list
     if dbs_list:
         database_entry = False
+        print("\nAvailable Databases:")
+        for db in range(len(dbs_list)):
+            print("{}) ".format(db+1), dbs_list[db])
+        print("\nWhich database would you like to explore?")
         while database_entry == False:
-            print("\nAvailable Databases:")
-            for db in range(len(dbs_list)):
-                print("{}) ".format(db+1), dbs_list[db])
-            print("\nWhich database would you like to explore?")
             db_num = input("Please enter the number corresponding to the database: ")
             try:
                 db_ind = int(db_num)-1
@@ -32,41 +39,51 @@ if __name__ == '__main__':
                 currdb = Explore_SQL(db_name)
                 database_entry = True
             except ValueError as ve:
-                print('*'*10)
+                print(int_ValError.att)
                 print(ve)
-                err_msg = "\nValue must be an integer\n"
-                print(err_msg.upper())
+                print(int_ValError.msg.upper())
             except IndexError as ie:
-                print('*'*10)
+                print(index_Error.att)
                 print(ie)
                 if len(dbs_list) > 1:
-                    err_msg = "\nPlease enter an integer between 1 and "+str(len(dbs_list)+1)
+                    err_msg = "\nPlease enter an integer between 1 and "+str(len(dbs_list))
                     print(err_msg.upper())
                 else: 
                     err_msg = "\nPlease enter '1' if you would like to continue"
                     print(err_msg.upper())
+                print(index_Error.att)
+                
         tables = currdb.tables2list()
         if tables:
             table_entry = False
+            print("\nAvailable tables:\n")
+            for i in range(len(tables)):
+                print("{}) ".format(i+1),tables[i])
+            print("\nWhich table would you like to explore?")
             while table_entry == False:
-                print("\nAvailable tables:\n")
-                for i in range(len(tables)):
-                    print("{}) ".format(i+1),tables[i])
-                print("\nWhich table would you like to explore?")
                 table_num = input("Please enter the number corresponding to the table: ")
+                
                 try:
                     table_ind = int(table_num)-1
                     table_name = tables[table_ind]
                     df = currdb.table2dataframe(table_name)
                     currdf = Explore_Data(df)
                     table_entry = True
-                except ValueError:
-                    print("Value must be an integer")
-                except IndexError:
+                except ValueError as ve:
+                    print(int_ValError.att)
+                    print(ve)
+                    print(int_ValError.msg.upper())
+                except IndexError as ie:
+                    print(index_Error.att)
+                    print(ie)
                     if len(tables) > 1:
-                        print("Please enter an integer between 1 and ",len(tables)+1)
-                    else:
-                        print("Please enter '1' if you would like to continue")
+                        err_msg = "\nPlease enter an integer between 1 and "+str(len(tables))
+                        print(err_msg.upper())
+                    else: 
+                        err_msg = "\nPlease enter '1' if you would like to continue"
+                        print(err_msg.upper())
+                    print(index_Error.att)
+    
             currdf.print_profile(table_name)
             if currdf.depvar_numunique > 1:
                 incorrect_input = True
