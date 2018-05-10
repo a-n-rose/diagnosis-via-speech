@@ -35,6 +35,7 @@ if __name__ == '__main__':
                     print()
                     print("Available tables: \n")
                     currdb.print_tables()
+                    
                     table_name = input("Which table would you like to explore?: ")
                     if table_name in tables:
                         df = currdb.table2dataframe(table_name)
@@ -43,19 +44,32 @@ if __name__ == '__main__':
                     else:
                         print()
                         print("!! Table does not exist.")
-                print()
-                print('#'*80,'\n')
-                print("SQL table '",table_name,"' profile: \n")
-                print("Columns: \n", currdf.columns)
-                currdf.explore_depvar()
-                print()
-                print("Dependent variable (i.e. column {}) type: \n".format(currdf.columns[-1]), currdf.depvar_type,"\n")
-                print("Number of dependent variables: \n", currdf.depvar_numunique,"\n")
-                print("Dependent Variable(s): \n",currdf.depvar,"\n")
-                print("Standard deviation of applicable columns: \n",currdf.calc_std(),"\n")
-                print("Range of applicable columns: \n", currdf.calc_range(),"\n")
-                print("Inter-quartile Range of applicable columns: \n",currdf.calc_iqr(),"\n")
-                print('#'*80)
+
+                currdf.print_profile(table_name)
+                
+                if currdf.depvar_numunique > 1:
+                    incorrect_input = True
+                    while incorrect_input == True:
+                        examfurth = input("Would you like to explore the data belonging to one of the dependent variables? (yes or no) \n ")
+                        if 'yes' or 'no' in examfurth.lower():
+                            incorrect_input = False
+                        else: 
+                            print("\n Please enter 'yes' or 'no' \n")
+                    if 'yes' in examfurth.lower():
+                        cont_explore = True
+                        while cont_explore == True:
+                            print("Dependent variables to explore: \n",currdf.depvar,"\n")
+                            spec_dv = input("Which dependent variable are you interested in? ")
+                            if spec_dv in currdf.depvar:
+                                try:
+                                    currdf.print_profile(table_name,spec_dv)
+                                except Exception as e:
+                                    print(e)
+                                expmore = input("Would you like to explore another dependent variable? (yes or no) ")
+                                if 'no' in expmore.lower():
+                                    cont_explore = False
+                        else:
+                            print("")
             else:
                 print()
                 print("!! No tables found in database")
