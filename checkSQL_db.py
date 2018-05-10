@@ -105,11 +105,19 @@ class Explore_Data:
         return(data_std)
         
     def calc_range(self):
-        data_range = [(self.columns[col],(max(self.dataframe[col])-min(self.dataframe[col]))) for col in range(len(self.columns)) if isinstance(self.dataframe[col][0],float)]
+        if self.spec_depvar: 
+            df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
+        else:
+            df = self.dataframe
+        data_range = [(self.columns[col],(max(df[col])-min(df[col]))) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
         return(data_range)
     
     def calc_iqr(self):
-        data_iqr = [(self.columns[col],np.subtract(*np.percentile(self.dataframe[col],[75,25]))) for col in range(len(self.columns)) if isinstance(self.dataframe[col][0],float)]
+        if self.spec_depvar: 
+            df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
+        else:
+            df = self.dataframe
+        data_iqr = [(self.columns[col],np.subtract(*np.percentile(df[col],[75,25]))) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
         return(data_iqr)
         
     def explore_depvar(self):
@@ -117,16 +125,6 @@ class Explore_Data:
         self.depvar_type = type(self.dataframe[last_col][0])
         self.depvar = set(self.dataframe[last_col])
         self.depvar_numunique = len(self.depvar)
-        return None
-    
-    def depvar2df(self,dep_var):
-        try:
-            copy_df = self.dataframe.copy()
-            depvardf = copy_df[copy_df[self.columns[-1]]==dep_var]
-            return(depvardf)
-        except Exception as e:
-            print(e)
-        
         return None
     
     def print_profile(self,table_name,dep_var = None):
