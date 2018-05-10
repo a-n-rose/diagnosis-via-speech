@@ -91,12 +91,17 @@ class Explore_Data:
         self.dataframe = df
         self.columns = df.columns.get_values()
         self.num_rows = len(df)
-        self.depvar = "Not yet defined. Run the method 'explore_depvar'"
-        self.depvar_type = "Not yet defined. Run the method 'explore_depvar'"
-        self.depvar_numunique = "Not yet defined. Run the method 'explore_depvar'"
+        self.depvar = None
+        self.depvar_type = None
+        self.depvar_numunique = None
+        self.spec_depvar = None
         
     def calc_std(self):
-        data_std = [(self.columns[col],np.std(self.dataframe[col])) for col in range(len(self.columns)) if isinstance(self.dataframe[col][0],float)]
+        if self.spec_depvar: 
+            df = self.dataframe[self.dataframe[self.columns[-1]]==self.spec_depvar]
+        else:
+            df = self.dataframe
+        data_std = [(self.columns[col],np.std(df[col])) for col in range(len(self.columns)) if isinstance(df[col][0],float)]
         return(data_std)
         
     def calc_range(self):
@@ -112,4 +117,41 @@ class Explore_Data:
         self.depvar_type = type(self.dataframe[last_col][0])
         self.depvar = set(self.dataframe[last_col])
         self.depvar_numunique = len(self.depvar)
+        return None
+    
+    def depvar2df(self,dep_var):
+        try:
+            copy_df = self.dataframe.copy()
+            depvardf = copy_df[copy_df[self.columns[-1]]==dep_var]
+            return(depvardf)
+        except Exception as e:
+            print(e)
+        
+        return None
+    
+    def print_profile(self,table_name,dep_var = None):
+        try:
+            if dep_var:
+                self.spec_depvar = dep_var
+            else:
+                self.spec_depvar = None
+            print()
+            print('#'*80,'\n')
+            print("SQL table --",table_name,"-- profile: \n")
+            print("Columns: \n", self.columns)
+            self.explore_depvar()
+            print()
+            print("Dependent variable (i.e. column {}) type: \n".format(self.columns[-1]), self.depvar_type,"\n")
+            print("Number of dependent variables: \n", self.depvar_numunique,"\n")
+            print("Dependent variable(s): \n",self.depvar,"\n")
+            if dep_var:
+                print("Dependent variable of interest: ",self.spec_depvar,"\n")
+            print("Standard deviation of applicable columns: \n",self.calc_std(),"\n")
+            print("Range of applicable columns: \n", self.calc_range(),"\n")
+            print("Inter-quartile Range of applicable columns: \n",self.calc_iqr(),"\n")
+            print('#'*80)
+            print()
+        except Exception as e:
+            print(e)
+            
         return None
