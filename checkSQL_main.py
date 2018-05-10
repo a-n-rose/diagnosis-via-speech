@@ -86,28 +86,50 @@ if __name__ == '__main__':
     
             currdf.print_profile(table_name)
             if currdf.depvar_numunique > 1:
-                incorrect_input = True
-                while incorrect_input == True:
-                    examfurth = input("\nWould you like to explore the data belonging to one of the dependent variables? (yes or no): ")
-                    if 'yes' or 'no' in examfurth.lower():
-                        incorrect_input = False
+                cont_explore = False
+                while cont_explore == False:
+                    
+                    examfurth = input("\nWould you like to explore data from a particular dependent variable? (yes or no): ")
+                    if 'no' in examfurth.lower():
+                        break
+                    elif 'yes' in examfurth.lower():
+                        cont_explore = True
                     else: 
-                        print("\nPlease enter 'yes' or 'no'\n")
-                if 'yes' in examfurth.lower():
-                    cont_explore = True
-                    while cont_explore == True:
-                        print("\nDependent variables to explore: \n",currdf.depvar,"\n")
-                        spec_dv = input("\nWhich dependent variable are you interested in?: ")
-                        if spec_dv in currdf.depvar:
-                            try:
-                                currdf.print_profile(table_name,spec_dv)
-                            except Exception as e:
-                                print(e)
+                        print("\nPlease enter 'yes' or 'no'\n")           
+                while cont_explore == True:
+                    print("\nDependent variables to explore: \n")
+                    dv_list = list(currdf.depvar)
+                    for dv in range(len(dv_list)):
+                        print("{}) ".format(dv+1),dv_list[dv])    
+                    print("\nWhich dependent variable are you interested in?: ")
+                    dv_num = input("Please enter the number corresponding to the variable: ")
+                    
+                    try:
+                        dv_ind = int(dv_num)-1
+                        dv_name = dv_list[dv_ind]
+                        currdf.print_profile(table_name,dv_name)
+                        again = False
+                        while again == False:
                             expmore = input("\nWould you like to explore another dependent variable? (yes or no): ")
                             if 'no' in expmore.lower():
                                 cont_explore = False
-                    else:
-                        print("")
+                                break
+                            elif 'yes' in expmore.lower():
+                                again = True
+                            else:
+                                print("\nPlease enter 'yes' or 'no'\n")
+                                
+                    except ValueError as ve:
+                        print(int_ValError.att)
+                        print(ve)
+                        print(int_ValError.msg.upper())
+                    except IndexError as ie:
+                        print(index_Error.att)
+                        print(ie)
+                        err_msg = "\nPlease enter an integer between 1 and "+str(len(dv_list))
+                        print(err_msg.upper())
+                        print(index_Error.att)
+                
         else:
             print("\n!! No tables found in database\n")
     else:
