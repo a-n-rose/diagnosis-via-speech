@@ -21,26 +21,52 @@ if __name__ == '__main__':
     if dbs_list:
         database_entry = False
         while database_entry == False:
-            print("\nAvailable Databases:\n",dbs.db_names,"\n")
-            db_name = input("Which database would you like to explore?: ")
-            if db_name in dbs_list:
+            print("\nAvailable Databases:")
+            for db in range(len(dbs_list)):
+                print("{}) ".format(db+1), dbs_list[db])
+            print("\nWhich database would you like to explore?")
+            db_num = input("Please enter the number corresponding to the database: ")
+            try:
+                db_ind = int(db_num)-1
+                db_name = dbs_list[db_ind]
                 currdb = Explore_SQL(db_name)
                 database_entry = True
-            else:
-                print("\n!! Database not found. Please choose from one of the available databases.\n")
+            except ValueError as ve:
+                print('*'*10)
+                print(ve)
+                err_msg = "\nValue must be an integer\n"
+                print(err_msg.upper())
+            except IndexError as ie:
+                print('*'*10)
+                print(ie)
+                if len(dbs_list) > 1:
+                    err_msg = "\nPlease enter an integer between 1 and "+str(len(dbs_list)+1)
+                    print(err_msg.upper())
+                else: 
+                    err_msg = "\nPlease enter '1' if you would like to continue"
+                    print(err_msg.upper())
         tables = currdb.tables2list()
         if tables:
             table_entry = False
             while table_entry == False:
                 print("\nAvailable tables:\n")
-                currdb.print_tables()
-                table_name = input("Which table would you like to explore?: ")
-                if table_name in tables:
+                for i in range(len(tables)):
+                    print("{}) ".format(i+1),tables[i])
+                print("\nWhich table would you like to explore?")
+                table_num = input("Please enter the number corresponding to the table: ")
+                try:
+                    table_ind = int(table_num)-1
+                    table_name = tables[table_ind]
                     df = currdb.table2dataframe(table_name)
                     currdf = Explore_Data(df)
                     table_entry = True
-                else:
-                    print("\n!! Table does not exist.\n")
+                except ValueError:
+                    print("Value must be an integer")
+                except IndexError:
+                    if len(tables) > 1:
+                        print("Please enter an integer between 1 and ",len(tables)+1)
+                    else:
+                        print("Please enter '1' if you would like to continue")
             currdf.print_profile(table_name)
             if currdf.depvar_numunique > 1:
                 incorrect_input = True
