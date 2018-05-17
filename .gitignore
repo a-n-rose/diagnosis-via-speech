@@ -1,3 +1,4 @@
 .directory
 env/
 *.wav
+*.png
