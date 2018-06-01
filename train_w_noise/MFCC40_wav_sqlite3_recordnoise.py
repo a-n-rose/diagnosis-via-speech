@@ -5,8 +5,7 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
-To see how matching environmental noise influences model accuracy, when this script starts, it will record the local 
-environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
+To see how matching environmental noise influences model accuracy, when this script starts, it will record the local environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
 Therefore in this script, that has been removed.
 
 
@@ -43,52 +42,60 @@ def user_ready(action):
 
     return None
 
-def parser(file,num_mfcc,env_noise):
-    y, sr = librosa.load(file, res_type= 'kaiser_fast')
-    y = add_noise.normalize(y)
+def parser(wavefile,num_mfcc,env_noise):
+    try:
+        y, sr = librosa.load(wavefile, res_type= 'kaiser_fast')
+        y = add_noise.normalize(y)
+        
+        #at random apply varying amounts of environment noise
+        rand_scale = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
+        if rand_scale:
+            #apply *known* environemt noise to signal
+            total_length = len(y)/sr
+            envnoise_normalized = add_noise.normalize(env_noise)
+            envnoise_scaled = add_noise.scale_noise(envnoise_normalized,rand_scale)
+            envnoise_matched = add_noise.match_length(envnoise_scaled,sr,total_length)
+            if len(envnoise_matched) != len(y):
+                diff = int(len(y) - len(envnoise_matched))
+                if diff < 0:
+                    envnoise_matched = envnoise_matched[:diff]
+                else:
+                    envnoise_matched = np.append(envnoise_matched,np.zeros(diff,))
+            y += envnoise_matched
+        mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
+        return mfccs, sr
+    except EOFError as error:
+        logging.info('def parser() resulted in ', error, ' for the file: ',wavefile)
     
-    #at random apply varying amounts of environment noise
-    rand_scale = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
-    if rand_scale:
-        #apply *known* environemt noise to signal
-        total_length = len(y)/sr
-        envnoise_normalized = add_noise.normalize(env_noise)
-        envnoise_scaled = add_noise.scale_noise(envnoise_normalized,rand_scale)
-        envnoise_matched = add_noise.match_length(envnoise_scaled,sr,total_length)
-        if len(envnoise_matched) != len(y):
-            diff = int(len(y) - len(envnoise_matched))
-            if diff < 0:
-                envnoise_matched = envnoise_matched[:diff]
-            else:
-                envnoise_matched = np.append(envnoise_matched,np.zeros(diff,))
-        y += envnoise_matched
-    mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
-    return mfccs, sr
-
+    return None, None
+        
 def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
     filename = os.path.splitext(tgz_file)[0]
     feature, sr = parser(filename+".wav",num_mfcc,env_noise)
-    columns = list((range(0,num_mfcc)))
-    column_str = []
-    for i in columns:
-        column_str.append(str(i))
-    feature_df = pd.DataFrame(feature)
-    curr_db = pd.DataFrame.transpose(feature_df)
-    curr_db.columns = column_str
-    curr_db.insert(0,"file_name",filename)
-    label = label+"_"+str(sr)
-    curr_db["label"] = label
-    x = curr_db.as_matrix()
-    num_cols = 2+num_mfcc
-    col_var = ""
-    for i in range(num_cols):
-        if i < num_cols-1:
-            col_var+=' ?,'
-        else:
-            col_var+=' ?'
-    c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
-    conn.commit()   
+    if feature.any():
+        columns = list((range(0,num_mfcc)))
+        column_str = []
+        for i in columns:
+            column_str.append(str(i))
+        feature_df = pd.DataFrame(feature)
+        curr_db = pd.DataFrame.transpose(feature_df)
+        curr_db.columns = column_str
+        curr_db.insert(0,"file_name",filename)
+        label = label+"_"+str(sr)
+        curr_db["label"] = label
+        x = curr_db.as_matrix()
+        num_cols = 2+num_mfcc
+        col_var = ""
+        for i in range(num_cols):
+            if i < num_cols-1:
+                col_var+=' ?,'
+            else:
+                col_var+=' ?'
+        c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
+        conn.commit()
+    else:
+        logging.info("Failed MFCC extraction: ",tgz_file," in the directory: ", dirname)
     return None
 
 #initialize database
