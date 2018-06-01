@@ -5,7 +5,8 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
-To see how matching environmental noise influences model accuracy, when this script starts, it will record the local environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
+To see how matching environmental noise influences model accuracy, when this script starts, it will record the local 
+environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
 Therefore in this script, that has been removed.
 
 
@@ -164,5 +165,5 @@ conn.close()
 print("MFCC data has been successfully saved!")
 print("All wave files have been processed")
 elapsed_time = time.time()-prog_start
-logging.info("Elapsed time in hours: ", elapsed_time*3600)
-print("Elapsed time in hours: ", elapsed_time*3600)
+logging.info("Elapsed time in hours: ", elapsed_time/3600)
+print("Elapsed time in hours: ", elapsed_time/3600)
