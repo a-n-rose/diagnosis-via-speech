@@ -5,17 +5,13 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
-To see how matching environmental noise influences model accuracy, when this script starts, it will record 
-the local environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
+To see how matching environmental noise influences model accuracy, when this script starts, it will record the local environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
 Therefore in this script, that has been removed.
 
 
 To go through all the 'dev', 'train', and 'test' folders, it took this program 36004.13554787636 seconds (10.001148763298989 hours) 
 
 '''
-
-
- 
 import os, sys, tarfile
 import numpy as np
 import pandas as pd
@@ -29,7 +25,6 @@ import soundfile as sf
 import logging
 
 import add_noise
-
 
 logging.basicConfig(filename='addnoise_mfcc40.log',level=logging.INFO,format='%(levelname)s:%(message)s')
 
@@ -65,33 +60,29 @@ def parser(file,num_mfcc,env_noise):
 
 def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
-    try:
-        filename = os.path.splitext(tgz_file)[0]
-        feature, sr = parser(filename+".wav",num_mfcc,env_noise)
-        columns = list((range(0,num_mfcc)))
-        column_str = []
-        for i in columns:
-            column_str.append(str(i))
-        feature_df = pd.DataFrame(feature)
-        curr_db = pd.DataFrame.transpose(feature_df)
-        curr_db.columns = column_str
-        curr_db.insert(0,"file_name",filename)
-        label = label+"_"+str(sr)
-        curr_db["label"] = label
-        x = curr_db.as_matrix()
-        num_cols = 2+num_mfcc
-        col_var = ""
-        for i in range(num_cols):
-            if i < num_cols-1:
-                col_var+=' ?,'
-            else:
-                col_var+=' ?'
-        c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
-        conn.commit()   
-    except Exception as e:
-        print(e)
-
-
+    filename = os.path.splitext(tgz_file)[0]
+    feature, sr = parser(filename+".wav",num_mfcc,env_noise)
+    columns = list((range(0,num_mfcc)))
+    column_str = []
+    for i in columns:
+        column_str.append(str(i))
+    feature_df = pd.DataFrame(feature)
+    curr_db = pd.DataFrame.transpose(feature_df)
+    curr_db.columns = column_str
+    curr_db.insert(0,"file_name",filename)
+    label = label+"_"+str(sr)
+    curr_db["label"] = label
+    x = curr_db.as_matrix()
+    num_cols = 2+num_mfcc
+    col_var = ""
+    for i in range(num_cols):
+        if i < num_cols-1:
+            col_var+=' ?,'
+        else:
+            col_var+=' ?'
+    c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
+    conn.commit()   
+    return None
 
 #initialize database
 conn = sqlite3.connect('sp_mfcc.db')
@@ -106,7 +97,6 @@ print("We will record your environment for several seconds; please stay quiet")
         #recording = True
 print("Now recording...")
 
-
 sr = 22050
 env_noise = add_noise.rec_envnoise_mult(5,3,sr)
 print("Finished! \n")
@@ -115,8 +105,6 @@ print("Finished! \n")
 time_str = get_date()
 env_filename = 'envnoise_'+time_str+'.wav'
 sf.write(env_filename,env_noise,sr)
-
-
 
 
 #label = input("Which category is this speech? ")
@@ -131,11 +119,9 @@ column_type = []
 for i in columns:
     column_type.append('"'+str(i)+'" real')
 
-try:    
-    c.execute(''' CREATE TABLE IF NOT EXISTS mfcc_40(filename  text, %s, label text) ''' % ", ".join(column_type))
-    conn.commit()
-except Exception as e:
-    print(e)
+
+c.execute(''' CREATE TABLE IF NOT EXISTS mfcc_40(filename  text, %s, label text) ''' % ", ".join(column_type))
+conn.commit()
 
 
 #collect directory names:
@@ -148,35 +134,29 @@ else:
     print("No directories found")
 
 
-try:
-    for j in range(len(dir_list)):
-        directory = dir_list[j]
-        os.chdir(directory)
-        dirname = directory[:-1]
-        logging.info(dirname)
-        print("Now processing the directory: "+dirname)
-        files_list = []
-        for wav in glob.glob('*.wav'):
-            files_list.append(wav)
-        if len(files_list) != 0:
-            for i in range(len(files_list)):
-                logging.info(files_list[i])
-                get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
-                print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
-        else:
-            print("No wave files found in ", dirname)
-        os.chdir("..")
-        print("The wave files in the "+ dirname + " directory have been processed successfully")
-except Exception as e:
-    print(e)
+for j in range(len(dir_list)):
+    directory = dir_list[j]
+    os.chdir(directory)
+    dirname = directory[:-1]
+    logging.info(dirname)
+    print("Now processing the directory: "+dirname)
+    files_list = []
+    for wav in glob.glob('*.wav'):
+        files_list.append(wav)
+    if len(files_list) != 0:
+        for i in range(len(files_list)):
+            logging.info(files_list[i])
+            get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
+            print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
+    else:
+        print("No wave files found in ", dirname)
+    os.chdir("..")
+    print("The wave files in the "+ dirname + " directory have been processed successfully")
 
-try:
-    conn.commit()
-    conn.close()
-    print("MFCC data has been successfully saved!")
-    print("All wave files have been processed")
-    elapsed_time = time.time()-prog_start
-    print("Elapsed time in seconds: ", elapsed_time)
-except Exception as e:
-    print(e)
-
+conn.commit()
+conn.close()
+print("MFCC data has been successfully saved!")
+print("All wave files have been processed")
+elapsed_time = time.time()-prog_start
+logging.info("Elapsed time in hours: ", elapsed_time*3600)
+print("Elapsed time in hours: ", elapsed_time*3600)

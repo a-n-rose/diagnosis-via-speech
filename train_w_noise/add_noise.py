@@ -16,7 +16,7 @@ def rec_envnoise_mult(num_rec,duration,sr):
        user_rec = sd.rec(int(duration*sr),samplerate=sr,channels=1)
        sd.wait()
        env_noise= np.append(env_noise,user_rec)
-    sd.stop()
+    sd.close()
     return(env_noise)
 
 def match_length(noise,sr,desired_length):
