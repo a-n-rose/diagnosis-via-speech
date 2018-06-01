@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jun  1 18:28:19 2018
+
+@author: airos
+"""
+
 import numpy as np
 import sounddevice as sd
 import librosa
@@ -31,6 +39,12 @@ def match_length(noise,sr,desired_length):
         end_index = len(noise) - max_index
         rand_start = random.randrange(0,end_index)
         noise2 = np.append(noise2,noise[rand_start:rand_start+max_index])
+    if len(noise2) != end_noiselength:
+        diff = int(end_noiselength - len(noise2))
+        if diff < 0:
+            noise2 = noise2[:diff]
+        else:
+            noise2 = np.append(noise2,np.zeros(diff,))
     return(noise2)
 
 def normalize(np_array):

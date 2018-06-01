@@ -54,6 +54,12 @@ def parser(file,num_mfcc,env_noise):
         envnoise_normalized = add_noise.normalize(env_noise)
         envnoise_scaled = add_noise.scale_noise(envnoise_normalized,rand_scale)
         envnoise_matched = add_noise.match_length(envnoise_scaled,sr,total_length)
+        if len(envnoise_matched) != len(y):
+            diff = int(len(y) - len(envnoise_matched))
+            if diff < 0:
+                envnoise_matched = envnoise_matched[:diff]
+            else:
+                envnoise_matched = np.append(envnoise_matched,np.zeros(diff,))
         y += envnoise_matched
     mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
     return mfccs, sr
