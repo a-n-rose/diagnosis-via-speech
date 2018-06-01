@@ -5,7 +5,10 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
-note: to distinguish the differences of the files between the folders, the "label" (i.e. the input provided by the user) is combined with the file's folder name and saved in the database.
+To see how matching environmental noise influences model accuracy, when this script starts, it will record 
+the local environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
+Therefore in this script, that has been removed.
+
 
 To go through all the 'dev', 'train', and 'test' folders, it took this program 36004.13554787636 seconds (10.001148763298989 hours) 
 
@@ -117,7 +120,7 @@ sf.write(env_filename,env_noise,sr)
 
 
 #label = input("Which category is this speech? ")
-label = 'animals_noise2'
+label = 'speech_with_noise'
 prog_start = time.time()
 logging.info(label)
 logging.info(prog_start)
