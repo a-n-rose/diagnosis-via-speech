@@ -5,15 +5,17 @@ There are 40 MFCCs, with 25ms window frames and 10ms shifts that are extracted.
 
 The MFCCs will be saved to a database in the cwd via SQLite3 
 
-To see how matching environmental noise influences model accuracy, when this script starts, it will record the local
-environment background noise. Note: there is a bug I haven't quite figure out that keeps from input() working.
+To see how matching environmental noise influences model accuracy, when this script starts, 
+it will record the local environment background noise. 
+
+Note: there is a bug I haven't quite figure out that keeps from input() working.
 Therefore in this script, that has been removed.
 
 
 To go through all the 'dev', 'train', and 'test' folders, it took this program 36004.13554787636 seconds (10.001148763298989 hours) 
 
 '''
-import os, sys, tarfile
+import os 
 import numpy as np
 import pandas as pd
 import librosa
@@ -94,7 +96,6 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
                 col_var+=' ?'
         c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
         conn.commit()
-        logging.info("Saved MFCCs from ", filename+".wav")
     else:
         logging.exception("Failed MFCC extraction: ",tgz_file," in the directory: ", dirname)
     return None
@@ -110,11 +111,6 @@ if __name__ == '__main__':
 
         #collect environment noise to be added to training data
         print("We will record your environment for several seconds; please stay quiet")
-        #recording = False
-        #while recording == False:
-            #user_input = input("If you are ready to start recording, press Y: ")
-            #if "y" in user_input.lower():
-                #recording = True
         print("Now recording...")
 
         sr = 22050
