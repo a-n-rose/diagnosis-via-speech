@@ -93,87 +93,93 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
                 col_var+=' ?'
         c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
         conn.commit()
+        logging.info("Saved MFCCs from ", filename+".wav")
     else:
-        logging.info("Failed MFCC extraction: ",tgz_file," in the directory: ", dirname)
+        logging.exception("Failed MFCC extraction: ",tgz_file," in the directory: ", dirname)
     return None
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='addnoise_mfcc40.log',level=logging.INFO,format='%(levelname)s:%(message)s')
+    try:
+        logging.basicConfig(filename='addnoise_mfcc40.log',level=logging.DEBUG,format='%(levelname)s:%(message)s')
 
-    #initialize database
-    conn = sqlite3.connect('sp_mfcc.db')
-    c = conn.cursor()
+        #initialize database
+        conn = sqlite3.connect('sp_mfcc.db')
+        c = conn.cursor()
 
-    #collect environment noise to be added to training data
-    print("We will record your environment for several seconds; please stay quiet")
-    #recording = False
-    #while recording == False:
-        #user_input = input("If you are ready to start recording, press Y: ")
-        #if "y" in user_input.lower():
-            #recording = True
-    print("Now recording...")
+        #collect environment noise to be added to training data
+        print("We will record your environment for several seconds; please stay quiet")
+        #recording = False
+        #while recording == False:
+            #user_input = input("If you are ready to start recording, press Y: ")
+            #if "y" in user_input.lower():
+                #recording = True
+        print("Now recording...")
 
-    sr = 22050
-    env_noise = add_noise.rec_envnoise_mult(5,3,sr)
-    print("Finished! \n")
+        sr = 22050
+        env_noise = add_noise.rec_envnoise_mult(5,3,sr)
+        print("Finished! \n")
 
-    #simply for documenation, save the environmental noise recorded
-    time_str = get_date()
-    env_filename = 'envnoise_'+time_str+'.wav'
-    sf.write(env_filename,env_noise,sr)
-
-
-    #label = input("Which category is this speech? ")
-    label = 'speech_with_noise'
-    prog_start = time.time()
-    logging.info(label)
-    logging.info(prog_start)
-    #specify number of mfccs --> reflects the number of columns
-    num_mfcc = 40
-    columns = list((range(0,num_mfcc)))
-    column_type = []
-    for i in columns:
-        column_type.append('"'+str(i)+'" real')
+        #simply for documenation, save the environmental noise recorded
+        time_str = get_date()
+        env_filename = 'envnoise_'+time_str+'.wav'
+        sf.write(env_filename,env_noise,sr)
 
 
-    c.execute(''' CREATE TABLE IF NOT EXISTS mfcc_40(filename  text, %s, label text) ''' % ", ".join(column_type))
-    conn.commit()
+        #label = input("Which category is this speech? ")
+        label = 'speech_with_noise'
+        prog_start = time.time()
+        logging.info(label)
+        logging.info(prog_start)
+        #specify number of mfccs --> reflects the number of columns
+        num_mfcc = 40
+        columns = list((range(0,num_mfcc)))
+        column_type = []
+        for i in columns:
+            column_type.append('"'+str(i)+'" real')
 
 
-    #collect directory names:
-    dir_list = []
-    for dirname in glob.glob('*/'):
-        dir_list.append(dirname)
-    if len(dir_list) > 0:
-        print("The directories found include: ", dir_list)
-    else:
-        print("No directories found")
+        c.execute(''' CREATE TABLE IF NOT EXISTS mfcc_40(filename  text, %s, label text) ''' % ", ".join(column_type))
+        conn.commit()
 
 
-    for j in range(len(dir_list)):
-        directory = dir_list[j]
-        os.chdir(directory)
-        dirname = directory[:-1]
-        logging.info(dirname)
-        print("Now processing the directory: "+dirname)
-        files_list = []
-        for wav in glob.glob('*.wav'):
-            files_list.append(wav)
-        if len(files_list) != 0:
-            for i in range(len(files_list)):
-                logging.info(files_list[i])
-                get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
-                print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
+        #collect directory names:
+        dir_list = []
+        for dirname in glob.glob('*/'):
+            dir_list.append(dirname)
+        if len(dir_list) > 0:
+            print("The directories found include: ", dir_list)
         else:
-            print("No wave files found in ", dirname)
-        os.chdir("..")
-        print("The wave files in the "+ dirname + " directory have been processed successfully")
+            print("No directories found")
 
-    conn.commit()
-    conn.close()
-    print("MFCC data has been successfully saved!")
-    print("All wave files have been processed")
-    elapsed_time = time.time()-prog_start
-    logging.info("Elapsed time in hours: ", elapsed_time/3600)
-    print("Elapsed time in hours: ", elapsed_time/3600)
+
+        for j in range(len(dir_list)):
+            directory = dir_list[j]
+            os.chdir(directory)
+            dirname = directory[:-1]
+            logging.info(dirname)
+            print("Now processing the directory: "+dirname)
+            files_list = []
+            for wav in glob.glob('*.wav'):
+                files_list.append(wav)
+            if len(files_list) != 0:
+                for i in range(len(files_list)):
+                    logging.info(files_list[i])
+                    get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
+                    logging.info("Successfully processed ",files_list[i], " from the directory ",dirname)
+                    logging.info("Progress: \nwavefile ",i," out of ", len(files_list), "\ndirectory ",j," out of ",len(dir_list))
+                    print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
+            else:
+                print("No wave files found in ", dirname)
+            os.chdir("..")
+            print("The wave files in the "+ dirname + " directory have been processed successfully")
+
+        conn.commit()
+        conn.close()
+        print("MFCC data has been successfully saved!")
+        print("All wave files have been processed")
+        elapsed_time = time.time()-prog_start
+        logging.info("Elapsed time in hours: ", elapsed_time/3600)
+        print("Elapsed time in hours: ", elapsed_time/3600)
+    except Exception as e:
+        logging.exception("Error occurred")
