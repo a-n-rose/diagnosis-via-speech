@@ -66,7 +66,8 @@ def parser(wavefile,num_mfcc,env_noise):
         logging.exception("Error occured ({}) with the file {}".format(ve,wavefile))
     
     return None, None
-        
+
+@profile
 def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
     filename = os.path.splitext(tgz_file)[0]
