@@ -73,7 +73,7 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
     filename = os.path.splitext(tgz_file)[0]
     feature, sr = parser(filename+".wav",num_mfcc,env_noise)
-    if feature.any():
+    if sr:
         columns = list((range(0,num_mfcc)))
         column_str = []
         for i in columns:
