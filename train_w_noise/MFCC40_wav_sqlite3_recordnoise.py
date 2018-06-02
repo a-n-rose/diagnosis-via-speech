@@ -26,6 +26,8 @@ import datetime
 import random
 import soundfile as sf
 import logging
+import logging.handlers
+logger = logging.getLogger(__name__)
 
 import add_noise
 
@@ -34,15 +36,6 @@ def get_date():
     time = datetime.datetime.now()
     time_str = "{}".format(str(time.year)+'_'+str(time.day)+'_'+str(time.hour)+'_'+str(time.minute)+'__'+str(time.second))
     return(time_str)
-
-def user_ready(action):
-    user_input = input("Please press Y {}".format(action))
-    if 'y' in user_input.lower():
-        return True
-    else:
-        user_ready(action)
-
-    return None
 
 def parser(wavefile,num_mfcc,env_noise):
     try:
@@ -67,7 +60,9 @@ def parser(wavefile,num_mfcc,env_noise):
         mfccs = librosa.feature.mfcc(y, sr, n_mfcc=num_mfcc,hop_length=int(0.010*sr),n_fft=int(0.025*sr))
         return mfccs, sr
     except EOFError as error:
-        logging.info('def parser() resulted in ', error, ' for the file: ',wavefile)
+        logging.exception('def parser() resulted in {} for the file: {}'.format(error,wavefile))
+    except ValueError as ve:
+        logging.exception("Error occured ({}) with the file {}".format(ve,wavefile))
     
     return None, None
         
@@ -97,34 +92,64 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
         c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
         conn.commit()
     else:
-        logging.exception("Failed MFCC extraction: ",tgz_file," in the directory: ", dirname)
+        logging.exception("Failed MFCC extraction: {} in the directory: {}".format(tgz_file,dirname))
     return None
 
 
 if __name__ == '__main__':
     try:
-        logging.basicConfig(filename='addnoise_mfcc40.log',level=logging.DEBUG,format='%(levelname)s:%(message)s')
-
+        #default format: severity:logger name:message
+        #documentation: https://docs.python.org/3.6/library/logging.html#logrecord-attributes 
+        log_formatterstr='%(levelname)s , %(asctime)s, "%(message)s", %(name)s , %(threadName)s'
+        log_formatter = logging.Formatter(log_formatterstr)
+        logging.root.setLevel(logging.DEBUG)
+        #logging.basicConfig(format=log_formatterstr,
+        #                    filename='/tmp/tradinglog.csv',
+        #                    level=logging.INFO)
+        #for logging infos:
+        file_handler_info = logging.handlers.RotatingFileHandler('mfccloginfo.csv',
+                                                                  mode='a',
+                                                                  maxBytes=1.0 * 1e6,
+                                                                  backupCount=200)
+        #file_handler_debug = logging.FileHandler('/tmp/tradinglogdbugger.csv', mode='w')
+        file_handler_info.setFormatter(log_formatter)
+        file_handler_info.setLevel(logging.INFO)
+        logging.root.addHandler(file_handler_info)
+        
+        
+        #https://docs.python.org/3/library/logging.handlers.html
+        #for logging errors:
+        file_handler_error = logging.handlers.RotatingFileHandler('mfcclogerror.csv', mode='a',
+                                                                  maxBytes=1.0 * 1e6,
+                                                                  backupCount=200)
+        file_handler_error.setFormatter(log_formatter)
+        file_handler_error.setLevel(logging.ERROR)
+        logging.root.addHandler(file_handler_error)
+        
+        #for logging infos:
+        file_handler_debug = logging.handlers.RotatingFileHandler('mfcclogdbugger.csv',
+                                                                  mode='a',
+                                                                  maxBytes=2.0 * 1e6,
+                                                                  backupCount=200)
+        #file_handler_debug = logging.FileHandler('/tmp/tradinglogdbugger.csv', mode='w')
+        file_handler_debug.setFormatter(log_formatter)
+        file_handler_debug.setLevel(logging.DEBUG)
+        logging.root.addHandler(file_handler_debug)
+        
+        
+        
+        
+        
+        
         #initialize database
         conn = sqlite3.connect('sp_mfcc.db')
         c = conn.cursor()
 
-        #collect environment noise to be added to training data
-        print("We will record your environment for several seconds; please stay quiet")
-        print("Now recording...")
+        #load environment noise to be added to training data
+        env_noise = librosa.load('envnoise_2018_1_17_8__46.wav')[0]
 
-        sr = 22050
-        env_noise = add_noise.rec_envnoise_mult(5,3,sr)
-        print("Finished! \n")
-
-        #simply for documenation, save the environmental noise recorded
-        time_str = get_date()
-        env_filename = 'envnoise_'+time_str+'.wav'
-        sf.write(env_filename,env_noise,sr)
-
-
-        #label = input("Which category is this speech? ")
-        label = 'speech_with_noise'
+        label = input("Which category is this speech? ")
+        #label = 'speech_with_noise'
         prog_start = time.time()
         logging.info(label)
         logging.info(prog_start)
@@ -163,8 +188,8 @@ if __name__ == '__main__':
                 for i in range(len(files_list)):
                     logging.info(files_list[i])
                     get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
-                    logging.info("Successfully processed ",files_list[i], " from the directory ",dirname)
-                    logging.info("Progress: \nwavefile ",i," out of ", len(files_list), "\ndirectory ",j," out of ",len(dir_list))
+                    logging.info("Successfully processed {} from the directory {}".format(files_list[i],dirname))
+                    logging.info("Progress: \nwavefile {} out of {} \ndirectory {} out of {}".format(i,len(files_list),j,len(dir_list)))
                     print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
             else:
                 print("No wave files found in ", dirname)
@@ -176,7 +201,7 @@ if __name__ == '__main__':
         print("MFCC data has been successfully saved!")
         print("All wave files have been processed")
         elapsed_time = time.time()-prog_start
-        logging.info("Elapsed time in hours: ", elapsed_time/3600)
+        logging.info("Elapsed time in hours: {}".format(elapsed_time/3600))
         print("Elapsed time in hours: ", elapsed_time/3600)
     except Exception as e:
         logging.exception("Error occurred")
