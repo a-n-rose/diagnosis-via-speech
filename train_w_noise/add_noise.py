@@ -21,8 +21,7 @@ def rec_envnoise(duration,sr):
 def rec_envnoise_mult(num_rec,duration,sr):
     env_noise = np.array([])
     for i in range(num_rec):
-       user_rec = sd.rec(int(duration*sr),samplerate=sr,channels=1)
-       sd.wait()
+       user_rec = sd.rec(int(duration*sr),samplerate=sr,channels=1,blocking=True)
        env_noise= np.append(env_noise,user_rec)
     sd.close()
     return(env_noise)
@@ -58,3 +57,6 @@ def scale_noise(np_array,factor):
     If you want to reduce the amplitude by half, the factor should equal 0.5
     '''
     return(np_array*factor)
+    
+    
+
