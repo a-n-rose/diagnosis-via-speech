@@ -28,6 +28,7 @@ import soundfile as sf
 import logging
 import logging.handlers
 logger = logging.getLogger(__name__)
+from pympler import tracker
 
 import add_noise
 
@@ -98,6 +99,7 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
 
 if __name__ == '__main__':
     try:
+        tr = tracker.SummaryTracker()
         #default format: severity:logger name:message
         #documentation: https://docs.python.org/3.6/library/logging.html#logrecord-attributes 
         log_formatterstr='%(levelname)s , %(asctime)s, "%(message)s", %(name)s , %(threadName)s'
@@ -203,5 +205,6 @@ if __name__ == '__main__':
         elapsed_time = time.time()-prog_start
         logging.info("Elapsed time in hours: {}".format(elapsed_time/3600))
         print("Elapsed time in hours: ", elapsed_time/3600)
+        logging.info(tr.print_diff())
     except Exception as e:
         logging.exception("Error occurred")
