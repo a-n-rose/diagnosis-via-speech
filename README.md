@@ -8,12 +8,24 @@
 
 #### Questions/Issues
 * Which speech features work best to train neural networks as I need? How many MFCCs? 13? 40? 
-** helpful article: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.75.8303&rep=rep1&type=pdf
+** the higher range of coefficients might reduce effectiveness of neural networks: too much (irrelevant?) variation
+** it would be interesting to know if in pathological speech, the higher coefficients could be helpful
 * Trained an ANN on the English and German data then tested my English speech and my husband's German speech
 ** around 80% accuracy on my speech and...
 ** 0% for my husband's :( still trying to figure out what's going on there... 
 * Do I need to normalize all the MFCC data before training, and therefore also new MFCC data?
-* I need to test the models I trained on other data 
+** I normalized all sounds (noise and target) prior to mfcc extraction
+** I could normalize all mfccs for each speaker (not across speakers though)
+* Match the training data to test data:
+** I wrote scripts to apply the local environment noise to the training data (to match data with *known* environment noise)
+** Need to do: apply all kinds of environment noise to training data to account for *unknown* environment noise
+*** differences in microphones
+*** inside/outside
+*** weather
+*** room size
+** Explore techniques such as SPLICE
+* To do: add additional languages to the neural network
+* To do: batch train the neural network (1-2 million rows at a time?)
 * I plan on visualizing the training process on TensorBoard or Embedding
 
 The speech I could most easily access at the moment was English (surprise!) and a bit of German. I decided to train neural networks on English and German and see if it could learn which langauge was which with new input.
