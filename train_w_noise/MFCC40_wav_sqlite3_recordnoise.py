@@ -189,7 +189,7 @@ if __name__ == '__main__':
                     logging.info(files_list[i])
                     get_save_mfcc(files_list[i],label,dirname,num_mfcc,env_noise)
                     logging.info("Successfully processed {} from the directory {}".format(files_list[i],dirname))
-                    logging.info("Progress: \nwavefile {} out of {} \ndirectory {} out of {}".format(i,len(files_list),j,len(dir_list)))
+                    logging.info("Progress: \nwavefile {} out of {}\nindex = {} \ndirectory {} out of {} \nindex = {}".format(i+1,len(files_list),i,j+1,len(dir_list),j))
                     print("Progress: ", ((i+1)/(len(files_list)))*100,"%  (",dirname,": ",j+1,"/",len(dir_list)," directories)")
             else:
                 print("No wave files found in ", dirname)
