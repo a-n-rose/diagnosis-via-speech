@@ -66,7 +66,7 @@ def parser(wavefile,num_mfcc,env_noise):
         logging.exception("Error occured ({}) with the file {}".format(ve,wavefile))
     
     return None, None
-
+       
 @profile
 def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
@@ -100,7 +100,8 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
 
 if __name__ == '__main__':
     try:
-        tr = tracker.SummaryTracker()
+        tr_tot = tracker.SummaryTracker()
+        
         #default format: severity:logger name:message
         #documentation: https://docs.python.org/3.6/library/logging.html#logrecord-attributes 
         log_formatterstr='%(levelname)s , %(asctime)s, "%(message)s", %(name)s , %(threadName)s'
@@ -206,6 +207,12 @@ if __name__ == '__main__':
         elapsed_time = time.time()-prog_start
         logging.info("Elapsed time in hours: {}".format(elapsed_time/3600))
         print("Elapsed time in hours: ", elapsed_time/3600)
-        logging.info(tr.print_diff())
+        tr_tot.print_diff()
+    except sqlite3.Error as e:
+        logging.exception("Database error: %s" % e)
     except Exception as e:
-        logging.exception("Error occurred")
+        logging.exception("Error occurred: %s" % e)
+    finally:
+        if conn:
+            conn.close()
+
