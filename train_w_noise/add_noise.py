@@ -11,7 +11,8 @@ import sounddevice as sd
 import librosa
 import math
 import random
-
+import datetime
+#import matplotlib.pyplot as plt
 
 def rec_envnoise(duration,sr):
     user_rec = sd.rec(int(duration*sr),samplerate=sr,channels=1)
@@ -23,7 +24,7 @@ def rec_envnoise_mult(num_rec,duration,sr):
     for i in range(num_rec):
        user_rec = sd.rec(int(duration*sr),samplerate=sr,channels=1,blocking=True)
        env_noise= np.append(env_noise,user_rec)
-    sd.close()
+    sd.wait()
     return(env_noise)
 
 def match_length(noise,sr,desired_length):
@@ -46,11 +47,20 @@ def match_length(noise,sr,desired_length):
             noise2 = np.append(noise2,np.zeros(diff,))
     return(noise2)
 
-def normalize(np_array):
-    min_array = min(np_array)
-    max_array = max(np_array)
-    normed = (np_array-min_array)/(max_array-min_array)
-    return(normed)
+#def normalize(np_array):
+    #min_array = min(np_array)
+    #max_array = max(np_array)
+    #normed = (np_array-min_array)/(max_array-min_array)
+    #return(normed)
+
+def normalize(array):
+    max_abs = max(abs(array))
+    if max_abs > 1:
+        mult_var = 1.0/max_abs
+        array_norm = array*mult_var
+        return(array_norm)
+    else:
+        return(array)
 
 def scale_noise(np_array,factor):
     '''
@@ -58,5 +68,40 @@ def scale_noise(np_array,factor):
     '''
     return(np_array*factor)
     
-    
+def save_noise(new_filename,np_array,sampling_rate):
+    librosa.output.write_wav(new_filename,np_array,sampling_rate)
+    print("File successfully saved")
+    return None
 
+def get_date():
+    time = datetime.datetime.now()
+    time_str = "{}".format(str(time.year)+'_'+str(time.month)+'_'+str(time.day)+'_'+str(time.hour)+'_'+str(time.minute)+'__'+str(time.second))
+    return(time_str)
+    
+   
+#    
+##to record local environment (10 seconds), save, and normalize and save (for comparison)    
+#time_str = get_date()
+#new_filename = "localnoise_"+time_str
+#sr = 44100
+#local_noise = rec_envnoise_mult(5,2,sr)
+#save_noise(new_filename+"_original.wav",local_noise,sr)
+#localnoise_normalized = normalize(local_noise)
+#save_noise(new_filename+"_normalized.wav",localnoise_normalized,sr)
+#
+##plot waves
+#plt.plot(local_noise[100000:102000])
+#plt.ylabel("Amplitude")
+#plt.xlabel("Time")
+#plt.title("Sample Wav")
+## display the plot
+#plt.show()
+#
+#plt.plot(localnoise_normalized[100000:102000])
+#plt.ylabel("Amplitude")
+#plt.xlabel("Time")
+#plt.title("Sample Wav")
+## display the plot
+#plt.show()
+#
+#
