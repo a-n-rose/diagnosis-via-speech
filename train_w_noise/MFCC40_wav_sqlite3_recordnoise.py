@@ -45,6 +45,7 @@ def parser(wavefile,num_mfcc,env_noise):
         
         #at random apply varying amounts of environment noise
         rand_scale = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
+        logging.info("Scale of noise applied: {}".format(rand_scale))
         if rand_scale:
             #apply *known* environemt noise to signal
             total_length = len(y)/sr
@@ -67,7 +68,6 @@ def parser(wavefile,num_mfcc,env_noise):
     
     return None, None
        
-@profile
 def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
     filename = os.path.splitext(tgz_file)[0]
@@ -150,10 +150,11 @@ if __name__ == '__main__':
         c = conn.cursor()
 
         #load environment noise to be added to training data
-        env_noise = librosa.load('envnoise_2018_1_17_8__46.wav')[0]
+        env_noise = librosa.load('example_noise.wav')[0]
 
-        label = input("Which category is this speech? ")
-        #label = 'speech_with_noise'
+        #bug: for some reason, the input is not working in this script
+        #label = input("Which category is this speech? ")
+        label = 'speech_with_noise'
         prog_start = time.time()
         logging.info(label)
         logging.info(prog_start)
