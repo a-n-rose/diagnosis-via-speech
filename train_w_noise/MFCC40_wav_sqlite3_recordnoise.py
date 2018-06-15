@@ -68,9 +68,9 @@ def parser(wavefile,num_mfcc,env_noise):
     
     return None, None
        
-def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
+def get_save_mfcc(wave_file,label,dirname,num_mfcc,env_noise):
     label = label+"_"+dirname
-    filename = os.path.splitext(tgz_file)[0]
+    filename = os.path.splitext(wave_file)[0]
     feature, sr = parser(filename+".wav",num_mfcc,env_noise)
     if sr:
         columns = list((range(0,num_mfcc)))
@@ -94,7 +94,7 @@ def get_save_mfcc(tgz_file,label,dirname,num_mfcc,env_noise):
         c.executemany(' INSERT INTO mfcc_40 VALUES (%s) ' % col_var,x)
         conn.commit()
     else:
-        logging.exception("Failed MFCC extraction: {} in the directory: {}".format(tgz_file,dirname))
+        logging.exception("Failed MFCC extraction: {} in the directory: {}".format(wave_file,dirname))
     return None
 
 
