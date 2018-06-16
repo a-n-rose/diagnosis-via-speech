@@ -8,7 +8,7 @@ from keras.layers import Dense, Dropout, Activation
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import confusion_matrix
 
-from collect_SQL_data_template import does_db_exist, Extract_Data
+from collect_SQL_data_debug import does_db_exist, Extract_Data
 from my_logger import start_logging, get_date
 
 logger = logging.getLogger(__name__)
@@ -27,8 +27,8 @@ if __name__ == '__main__':
         current_filename = os.path.basename(__file__)
         session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
         table = 'table' 
-        variable_train = 'variable_train' 
-        variable_test = 'variable_test'
+        variable_train = ['German_noise_matched_train_22050','English_noise_matched1_48kHz_16bit']
+        variable_test = ['German_noise_matched_test_22050','English_noise_matched1_44.1kHz_16bit']
         gen_notes = 'General notes about the current session' #whatever you'd like to note down/document
         
         rowstart_train = 0  #the row to start pulling data from database
@@ -36,9 +36,10 @@ if __name__ == '__main__':
         rowstart_test = 0
         rowlim_test = 1000000
         num_mfcc = 13  #up to 40 (depending on the data)
-        include_1stMFCC = False  #True includes coefficient, which is correlated with loudness of speech
-        language = 'language'
-        int_classifier = None #0=English, 1=German  #which integer should be used to classify the langauge? Note: if more than 2 (i.e. 0,1,2) need to change classifier settings
+        include_1stMFCC = False  #True includes 1st coefficient, which is correlated with loudness of speech
+        language = ['English','German']
+        int_classifier = [i for i in range(len(language))]
+        langint_dict = dict(zip(int_classifier, language))
         
         #for initializing (keras) model/classifier:
         classifier = 'Sequential()'
@@ -65,7 +66,7 @@ if __name__ == '__main__':
         start_logging(script_purpose)
         logging.info("Running script: {}".format(current_filename))
         logging.info("Session: {}".format(session_name))
-        logging.info("Language: {}".format(language))
+        logging.info("Language and classifier pairs: {}".format(langint_dict))
         logging.info("Integer label: {}".format(int_classifier))
         logging.info("Table: {}".format(table))
         logging.info("Variable for training: {}".format(variable_train))
@@ -85,8 +86,14 @@ if __name__ == '__main__':
             column = currdb.get_depvar_colname(table)
             
             #prep data for training
-            df_train = currdb.prep_df(table,column,variable_train,rowstart_train,rowlim_train,num_mfcc,int_classifier)
-    
+            for j in range(len(variable_train)):
+                if j > 0:
+                    df_temp = currdb.prep_df(table,column,variable_train[j],rowstart_train,rowlim_train,num_mfcc,langint_dict)
+                    df_train = df_train.append(df_temp)
+                else:
+                    df_train = currdb.prep_df(table,column,variable_train[j],rowstart_train,rowlim_train,num_mfcc,langint_dict)
+            
+                
             x1_train = df_train.as_matrix()
             startcol_train = currdb.get_startcol(x1_train,include_1stMFCC)
             x_train = x1_train[:,startcol_train:]
@@ -94,8 +101,13 @@ if __name__ == '__main__':
             X_train = x_train[:,:-1]
             y_train = x_train[:,-1]
             
-            #prep train data 
-            df_test = currdb.prep_df(table,column,variable_test,rowstart_test,rowlim_test,num_mfcc,int_classifier)
+            #prep test data 
+            for j in range(len(variable_test)):
+                if j > 0:
+                    df_temp = currdb.prep_df(table,column,variable_test[j],rowstart_test,rowlim_test,num_mfcc,langint_dict)
+                    df_test = df_test.append(df_temp)
+                else:
+                    df_test = currdb.prep_df(table,column,variable_test[j],rowstart_test,rowlim_test,num_mfcc,langint_dict)
             
             x1_test = df_test.as_matrix()
             startcol_test = currdb.get_startcol(x1_test,include_1stMFCC)
@@ -104,6 +116,7 @@ if __name__ == '__main__':
             X_test = x_test[:,:-1]
             y_test = x_test[:,-1]
             
+            #should be same number of labels for both train and test data, so only take values from one or the other
             num_labels = len(np.unique(y_train))
             if num_labels == 2:
                 num_labels = 1
@@ -141,6 +154,10 @@ if __name__ == '__main__':
             
             y_pred = classifier.predict(X_test)
             y_pred = (y_pred > 0.5)
+            
+            for lang in language:
+                #calculate accuracy
+                pass
             
             y_test=y_test.astype(bool)
             cm = confusion_matrix(y_test, y_pred)

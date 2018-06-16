@@ -84,17 +84,25 @@ class Extract_Data:
         df_red = pd.concat([df_red,df_var],axis=1)
         return df_red
     
-    def prep_df(self,table,column,variable,row_start,row_lim,num_cols,int_classifer):
+    def label2int(self,df,langint_dict):
+        for key in langint_dict:
+            if langint_dict[key].lower() in df.iloc[0][-1].lower():
+                df[df.columns[-1]] = key
+                return df
+        return None
+    
+    def prep_df(self,table,column,variable,row_start,row_lim,num_cols,langint_dict):
         if self.does_var_exist(table,column,variable):
             df = self.collect_data(table,column,variable,row_start,row_lim)
             #Note: +2 for filename and dependent variable columns
             if len(df.columns) > num_cols+2:
                 df = self.reduce_df(df,num_cols)
             #turn dependent variable (i.e. last column) into integer classifier
-            df[df.columns[-1]] = int_classifer
+            df = self.label2int(df,langint_dict)
             return df
         return None
-    
+        
+
     def get_startcol(self,matrix,include_1stMFCC):
         startcol = 0
         if isinstance(matrix[0][0],str):
