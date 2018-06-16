@@ -39,6 +39,7 @@ if __name__ == '__main__':
         script_purpose = 'trainmfcc' #will name logfile - generally don't need to change this unless training something other than MFCCs
         current_filename = os.path.basename(__file__)
         session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
+        db_filename = 'sp_mfcc.db'
         table = 'mfcc_40' 
         variable_train = ['German_noise_matched_train_22050','English_noise_matched1_48kHz_16bit']
         variable_test = ['German_noise_matched_test_22050','English_noise_matched1_44.1kHz_16bit']
@@ -93,7 +94,7 @@ if __name__ == '__main__':
         
         ########### Starting Program ############
         
-        db_name = 'db_name'
+        db_name = db_filename
         if does_db_exist(db_name):
             currdb = Extract_Data(db_name)
             column = currdb.get_depvar_colname(table)
