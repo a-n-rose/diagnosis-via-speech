@@ -66,7 +66,7 @@ if __name__ == '__main__':
         #for training the model:
         batch_size = 10
         epochs = 100
-        num_rows = 2000000
+        num_rows = lim_train*len(variable_train) + rowlim_test*len(variable_test)
         
         #names to save modoel:
         model_name = 'dl_{}_{}_{}'.format(session_name,script_purpose,num_rows)
