@@ -126,4 +126,3 @@ class Extract_Data:
             self.conn.commit()
             self.conn.close()
         return None
-   

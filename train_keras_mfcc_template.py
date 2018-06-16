@@ -155,10 +155,6 @@ if __name__ == '__main__':
             y_pred = classifier.predict(X_test)
             y_pred = (y_pred > 0.5)
             
-            for lang in language:
-                #calculate accuracy
-                pass
-            
             y_test=y_test.astype(bool)
             cm = confusion_matrix(y_test, y_pred)
             logging.info("Confusion Matrix for {}:\n{}".format(language,cm))
