@@ -145,13 +145,13 @@ if __name__ == '__main__':
             av_inout = int((num_inputs+num_outputs)/2)
             
             #add input layer and first hidden layer:
-            classifier.add(Dense(activation, units=av_inout, input_dim=num_inputs, kernel_initializer))
+            classifier.add(Dense(activation=activation_layer, units=av_inout, input_dim=num_inputs, kernel_initializer=kernel_initializer))
             
             #add second hidden layer:
-            classifier.add(Dense(activation, units = av_inout, kernel_initializer))
+            classifier.add(Dense(activation=activation_layer, units = av_inout, kernel_initializer=kernel_initializer))
             
             #add the output layer:
-            classifier.add(Dense(activation, units = num_outputs, kernel_initializer))
+            classifier.add(Dense(activation=activation_output, units = num_outputs, kernel_initializer=kernel_initializer))
             
             #compile ANN
             #'binary_crossentropy' for binary output label
