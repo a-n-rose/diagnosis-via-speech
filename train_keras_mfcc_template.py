@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
         
     except Exception as e:
-        logging.info("Error occurred: %s" % e)
+        logging.exception("Error occurred: %s" % e)
         
     finally:
         if currdb.conn:
