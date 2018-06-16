@@ -59,7 +59,7 @@ class Extract_Data:
             if self.does_var_exist(table,column,variable):
                 row_start = str(row_start)
                 limit = str(row_lim)
-                max_row = str(row_start+row_lim)
+                max_row = str(int(row_start)+int(row_lim))
                 if self.does_row_exist(table,max_row):
                     self.c.execute("SELECT * FROM "+table+" WHERE label = '"+variable+"' LIMIT "+row_start+", "+limit)
                     data = self.c.fetchall()
