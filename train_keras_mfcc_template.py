@@ -1,3 +1,16 @@
+'''
+Variables in database:
+        germ1 = 'German_noise_matched_test_22050'
+        germ2 = 'German_noise_matched_train_22050' 
+        germ3 = 'German_noise_matched_dev_22050'
+        eng1 = 'English_noise_matched1_48kHz_16bit'
+        eng2 = 'English_noise_matched1_44.1kHz_16bit'
+        eng3 = 'English_noise_matched1_32kHz_16bit'
+        eng4 = 'English_noise_matched1_16kHz_16bit'
+        eng5 = 'English_noise_matched1_8kHz_16bit'
+'''
+
+
 import os
 import logging.handlers
 import time
@@ -26,15 +39,15 @@ if __name__ == '__main__':
         script_purpose = 'trainmfcc' #will name logfile - generally don't need to change this unless training something other than MFCCs
         current_filename = os.path.basename(__file__)
         session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
-        table = 'table' 
+        table = 'mfcc_40' 
         variable_train = ['German_noise_matched_train_22050','English_noise_matched1_48kHz_16bit']
         variable_test = ['German_noise_matched_test_22050','English_noise_matched1_44.1kHz_16bit']
         gen_notes = 'General notes about the current session' #whatever you'd like to note down/document
         
         rowstart_train = 0  #the row to start pulling data from database
-        rowlim_train = 1000000  #limit the number of rows
+        rowlim_train = int(1000000*0.8)  #limit the number of rows (approximate 80% train, 20% test)
         rowstart_test = 0
-        rowlim_test = 1000000
+        rowlim_test = int(1000000*0.2)
         num_mfcc = 13  #up to 40 (depending on the data)
         include_1stMFCC = False  #True includes 1st coefficient, which is correlated with loudness of speech
         language = ['English','German']
