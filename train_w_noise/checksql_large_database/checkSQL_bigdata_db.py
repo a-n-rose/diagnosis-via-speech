@@ -18,7 +18,7 @@ from sqlite3 import Error
 import pandas as pd
 import numpy as np
 import glob
-import sys
+
 
 
 class Find_SQL_DB:
