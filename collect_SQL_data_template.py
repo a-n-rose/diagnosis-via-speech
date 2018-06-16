@@ -3,6 +3,7 @@ from sqlite3 import Error
 import pandas as pd
 from pandas.api.types import is_string_dtype
 import numpy as np
+import glob
 
 
 def does_db_exist(db_filename):
@@ -119,10 +120,12 @@ class Extract_Data:
     def close_conn_NOcommit(self):
         if self.conn:
             self.conn.close()
+            print('Database successfully closed')
         return None
        
     def close_conn_commit(self):
         if self.conn:
             self.conn.commit()
             self.conn.close()
+            print("Database successfully updated and closed")
         return None
