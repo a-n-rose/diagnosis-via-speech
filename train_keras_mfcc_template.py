@@ -190,6 +190,8 @@ if __name__ == '__main__':
             total_duration = (end_time - start_time)/3600
             logging.info("Total time to complete task: {} hours".format(total_duration))
             print("Finished training model - model and weights are saved.")
+        else:
+            print("Database does not exist.")
 
         
     except Exception as e:
