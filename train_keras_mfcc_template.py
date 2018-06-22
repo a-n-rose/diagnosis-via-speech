@@ -173,6 +173,7 @@ if __name__ == '__main__':
             y_test=y_test.astype(bool)
             cm = confusion_matrix(y_test, y_pred)
             logging.info("Confusion Matrix for {}:\n{}".format(language,cm))
+            score = classifier.evaluate(X_train, y_train, verbose=0)
             acc = "%s: %.2f%%" % (classifier.metrics_names[1], score[1]*100)
             logging.info(acc)
             print("Model Evaluation:")
@@ -181,7 +182,7 @@ if __name__ == '__main__':
             logging.info("Saving model and weights as: \n{}.json\n{}.h5".format(model_name,model_name))
             
             model_json = classifier.to_json()
-            with open(model_name+'.json',w) as json_file:
+            with open(model_name+'.json','w') as json_file:
                 json_file.write(model_json)
             classifier.save_weights(model_name+'.h5')
             
