@@ -45,7 +45,7 @@ class Extract_Data:
     def does_var_exist(self,table,column,variable):
         try:
             self.c.execute("SELECT * FROM "+table+" WHERE "+column+" = '"+variable+"' LIMIT 1")
-            data = self.c.fetchall()
+            data = self.c.fetchone()
             print(data)
             if data:
                 return True
@@ -89,7 +89,7 @@ class Extract_Data:
     def label2int(self,df,langint_dict):
         dfc = df.copy()
         for key in langint_dict:
-            if langint_dict[key].lower() in dfc.iloc[0][-1].lower():
+            if langint_dict[key].lower() in dfc.iloc[0][dfc.columns[-1]].lower():
                 dfc[dfc.columns[-1]] = key
                 return dfc
         return None
