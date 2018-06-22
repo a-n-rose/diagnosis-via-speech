@@ -71,7 +71,7 @@ if __name__ == '__main__':
         num_rows = rowlim_train*len(variable_train) + rowlim_test*len(variable_test)
         
         #names to save modoel:
-        model_name = 'dl_{}_{}_{}'.format(session_name,script_purpose,num_rows)
+        model_name = 'DL_{}_{}_{}'.format(session_name,script_purpose,num_rows)
         
         #######################################################
         #######################################################
