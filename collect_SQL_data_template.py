@@ -77,19 +77,21 @@ class Extract_Data:
     
     def reduce_df(self, df,num_cols):
         #add 1 column if first column has strings (i.e. filenames, not mfcc data)
-        if is_string_dtype(df[df.columns[0]]):
+        dfc = df.copy()
+        if is_string_dtype(dfc[dfc.columns[0]]):
             num_cols += 1
         cols_red = [i for i in range(num_cols)]
-        df_red = df[cols_red]
-        df_var = df[df.columns[-1]]
+        df_red = dfc[cols_red]
+        df_var = dfc[dfc.columns[-1]]
         df_red = pd.concat([df_red,df_var],axis=1)
         return df_red
     
     def label2int(self,df,langint_dict):
+        dfc = df.copy()
         for key in langint_dict:
-            if langint_dict[key].lower() in df.iloc[0][-1].lower():
-                df[df.columns[-1]] = key
-                return df
+            if langint_dict[key].lower() in dfc.iloc[0][-1].lower():
+                dfc[dfc.columns[-1]] = key
+                return dfc
         return None
     
     def prep_df(self,table,column,variable,row_start,row_lim,num_cols,langint_dict):
