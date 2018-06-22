@@ -29,7 +29,7 @@ class Extract_Data:
     def does_row_exist(self,table,row_num):
         try:
             self.c.execute("SELECT * FROM {} WHERE rowid = {}".format(table,row_num))
-            row = self.c.fetchall()
+            row = self.c.fetchone()
             if row:
                 return True
             else:
@@ -92,6 +92,8 @@ class Extract_Data:
             if langint_dict[key].lower() in dfc.iloc[0][dfc.columns[-1]].lower():
                 dfc[dfc.columns[-1]] = key
                 return dfc
+        else:
+            print("Variable not found")
         return None
     
     def prep_df(self,table,column,variable,row_start,row_lim,num_cols,langint_dict):
