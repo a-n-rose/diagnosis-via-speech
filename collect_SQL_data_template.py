@@ -1,5 +1,5 @@
 import sqlite3
-from sqlite3 import Error
+from sqlite3 import Error, OperationalError
 import pandas as pd
 from pandas.api.types import is_string_dtype
 import numpy as np
@@ -46,7 +46,6 @@ class Extract_Data:
         try:
             self.c.execute("SELECT * FROM "+table+" WHERE "+column+" = '"+variable+"' LIMIT 1")
             data = self.c.fetchone()
-            print(data)
             if data:
                 return True
         except Error as e:
